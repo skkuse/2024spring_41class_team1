@@ -19,6 +19,7 @@ public class FirebaseConfig {
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setDatabaseUrl("https://bitco2e-default-rtdb.asia-southeast1.firebasedatabase.app")
+                    .setStorageBucket("bitco2e.appspot.com")
                     .build();
 
             FirebaseApp.initializeApp(options);
