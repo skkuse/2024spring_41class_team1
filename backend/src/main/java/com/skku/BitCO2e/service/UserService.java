@@ -2,16 +2,17 @@ package com.skku.BitCO2e.service;
 
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.User;
-import com.skku.BitCO2e.repository.FirebaseUserRepository;
-import org.springframework.stereotype.Service;
+import com.skku.BitCO2e.repository.UserRepository;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
-@Service
 public class UserService {
 
-    private FirebaseUserRepository userRepository;
+    private UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public CompletableFuture<Boolean> createUser(UserRegisterDTO userRegisterDTO) {
         User user = new User();
