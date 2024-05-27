@@ -2,8 +2,6 @@ package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
-import com.skku.BitCO2e.model.CodeInput;
-import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
@@ -22,22 +20,23 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 public class Controller {
+    private final UserService userService;
 
     private final Pattern1 pattern1;
     private final Pattern2 pattern2;
     private final Pattern3 pattern3;
 
     @Autowired
-    private UserService userService;
+    public Controller(UserService userService) {
+        this.userService = userService;
 
-    public Controller() {
         this.pattern1 = new Pattern1();
         this.pattern2 = new Pattern2();
         this.pattern3 = new Pattern3();
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody UserRegisterDTO userRegisterDTO) {
+    public ResponseEntity<String> signup(UserRegisterDTO userRegisterDTO) {
         CompletableFuture<Boolean> future;
 
         future = userService.createUser(userRegisterDTO);
