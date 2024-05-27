@@ -5,9 +5,6 @@ import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import io.grpc.Context;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,8 +15,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-@Service
 public class AdvertisementService {
+    private final Bucket storageBucket;
+
+    public AdvertisementService(Bucket storageBucket) {
+        try {
+            this.storageBucket = StorageClient.getInstance().bucket();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize Firebase Storage bucket", e);
+        }
+    }
 
     public void createAdvertisement(String username, String currentBit, String usedBit, String message, String imageUrl) {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements");
@@ -41,15 +46,6 @@ public class AdvertisementService {
         adRef.child(adId).setValueAsync(adData);
     }
 
-    private final Bucket storageBucket;
-
-    public AdvertisementService() {
-        try {
-            this.storageBucket = StorageClient.getInstance().bucket();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Firebase Storage bucket", e);
-        }
-    }
 
     public String uploadAdFile(MultipartFile file) throws IOException {
         String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();

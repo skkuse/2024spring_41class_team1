@@ -1,16 +1,14 @@
-package com.skku.BitCO2e.dto;
+package com.skku.BitCO2e.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class AdvertisementDto {
+public class AdvertisementDTO {
     private String username;
     private Integer current_bit;
     private Integer used_bit;
