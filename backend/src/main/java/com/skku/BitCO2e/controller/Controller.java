@@ -1,6 +1,7 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
@@ -138,7 +139,7 @@ public class Controller {
     @PostMapping("/review")
     public ResponseEntity<String> reviewAd(
             @RequestParam(required = false) String adId,
-            @RequestBody com.skku.BitCO2e.dto.ReviewDto reviewRequest) {
+            @RequestBody ReviewDTO reviewRequest) {
 
         String status = reviewRequest.getStatus();
 
