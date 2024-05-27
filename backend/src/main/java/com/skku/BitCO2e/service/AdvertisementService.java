@@ -44,23 +44,20 @@ public class AdvertisementService {
     private final Bucket storageBucket;
 
     public AdvertisementService() {
-        this.storageBucket = StorageClient.getInstance().bucket();
+        try {
+            this.storageBucket = StorageClient.getInstance().bucket();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize Firebase Storage bucket", e);
+        }
     }
 
     public String uploadAdFile(MultipartFile file) throws IOException {
-
-        // Generate a unique filename
         String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-        // Define the path to the file in Firebase Storage
         String storagePath = "images/" + filename;
+        try (InputStream inputStream = file.getInputStream()) {
+            storageBucket.create(storagePath, inputStream);
+        }
 
-        // Convert MultipartFile to InputStream
-        InputStream inputStream = file.getInputStream();
-
-        storageBucket.create(storagePath, inputStream);
-
-        // Return the path to the uploaded file
         return storagePath;
     }
 
