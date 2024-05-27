@@ -1,6 +1,7 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.CodeInput;
 import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
@@ -8,12 +9,16 @@ import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
 import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class Controller {
@@ -32,10 +37,22 @@ public class Controller {
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody User user) {
-        userService.createUser(user);
+    public ResponseEntity<String> signup(@RequestBody UserRegisterDTO userRegisterDTO) {
+        CompletableFuture<Boolean> future;
 
-        return "User created successfully";
+        future = userService.createUser(userRegisterDTO);
+        try{
+            boolean success = future.get();
+
+            if(success){
+                return ResponseEntity.ok("User signed up successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
+        }
     }
 
     @PostMapping("/refactoring")
