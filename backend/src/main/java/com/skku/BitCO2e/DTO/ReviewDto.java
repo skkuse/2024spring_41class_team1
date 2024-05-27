@@ -1,6 +1,6 @@
 package com.skku.BitCO2e.dto;
 
-public class ReviewRequest {
+public class ReviewDto {
     private String status;
 
     public String getStatus() {
