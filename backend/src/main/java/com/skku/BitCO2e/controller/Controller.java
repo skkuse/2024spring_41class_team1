@@ -1,53 +1,57 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.skku.BitCO2e.dto.ReviewRequest;
-import com.skku.BitCO2e.model.Advertisement;
-import com.skku.BitCO2e.model.CodeInput;
-import com.skku.BitCO2e.model.User;
+import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
-import com.skku.BitCO2e.service.AdvertisementService;
 import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class Controller {
+    private final UserService userService;
 
     private final Pattern1 pattern1;
     private final Pattern2 pattern2;
     private final Pattern3 pattern3;
 
     @Autowired
-    private UserService userService;
+    public Controller(UserService userService) {
+        this.userService = userService;
 
-    @Autowired
-    private AdvertisementService advertisementService;
-
-    public Controller() {
         this.pattern1 = new Pattern1();
         this.pattern2 = new Pattern2();
         this.pattern3 = new Pattern3();
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody User user) {
-        userService.createUser(user);
+    public ResponseEntity<String> signup(UserRegisterDTO userRegisterDTO) {
+        CompletableFuture<Boolean> future;
 
-        return "User created successfully";
+        future = userService.createUser(userRegisterDTO);
+        try{
+            boolean success = future.get();
+
+            if(success){
+                return ResponseEntity.ok("User signed up successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
+        }
     }
 
     @PostMapping("/refactoring")
@@ -75,9 +79,6 @@ public class Controller {
             throw new RuntimeException("Error converting response to JSON", e);
         }
     }
-
-
-
 
     @PostMapping("/advertisement")
     public ResponseEntity<Object> requestAd(

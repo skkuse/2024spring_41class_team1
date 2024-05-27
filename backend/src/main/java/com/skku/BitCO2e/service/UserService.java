@@ -1,37 +1,36 @@
 package com.skku.BitCO2e.service;
 
-import com.google.firebase.database.*;
+import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.skku.BitCO2e.repository.UserRepository;
 
 import java.util.concurrent.CompletableFuture;
 
-@Service
 public class UserService {
 
-    public void createUser(User user) {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
-        usersRef.push().setValueAsync(user);
+    private UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public CompletableFuture<Boolean> validateUser(String username) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
-        Query query = usersRef.orderByChild("username").equalTo(username);
+    public CompletableFuture<Boolean> createUser(UserRegisterDTO userRegisterDTO) {
+        User user = new User();
 
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                future.complete(dataSnapshot.exists());
-            }
+        user.setUsername(userRegisterDTO.getUsername());
+        user.setEmail(userRegisterDTO.getEmail());
+        user.setPassword(userRegisterDTO.getPassword());
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                future.completeExceptionally(databaseError.toException());
-            }
+        CompletableFuture<Void> future = userRepository.save(user);
+
+
+
+        return future.thenApply(__ -> {
+            System.out.println("User creation completed successfully.");
+            return true;
+        }).exceptionally(ex -> {
+            System.err.println("User creation failed: " + ex);
+            return false;
         });
-
-        return future;
     }
 }
