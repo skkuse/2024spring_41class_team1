@@ -79,4 +79,84 @@ public class Controller {
             throw new RuntimeException("Error converting response to JSON", e);
         }
     }
+
+    @PostMapping("/advertisement")
+    public ResponseEntity<Object> requestAd(
+            @RequestParam String username,
+            @RequestParam String current_bit,
+            @RequestParam String used_bit,
+            @RequestParam String message,
+            @RequestParam MultipartFile image) {
+
+        CompletableFuture<ResponseEntity<Object>> responseFuture = new CompletableFuture<>();
+
+        if (username.isEmpty() || current_bit.isEmpty() || used_bit.isEmpty() || message.isEmpty() || image.isEmpty()) {
+            return new ResponseEntity<>("Missing required field", HttpStatus.BAD_REQUEST);
+        }
+
+//        if (!userService.validateUser(username)) {
+//            return new ResponseEntity<>("Authentication required", HttpStatus.UNAUTHORIZED);
+//        }
+
+        if (image.getSize() > 10 * 1024 * 1024) {
+            return new ResponseEntity<>("Image file size exceeds the limit", HttpStatus.PAYLOAD_TOO_LARGE);
+        }
+
+        try {
+            // Upload image to Firebase Storage
+            String imageUrl = advertisementService.uploadAdFile(image);
+
+            // Save advertisement data in Firebase Realtime Database
+            advertisementService.createAdvertisement(username, current_bit, used_bit, message, imageUrl);
+
+            // Update user's bit points
+            int currentBits = Integer.parseInt(current_bit);
+            int usedBits = Integer.parseInt(used_bit);
+            int newBitValue = currentBits - usedBits;
+//            userService.updateUserBits(username, newBitValue);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("username", username);
+            response.put("current_bit", current_bit);
+            response.put("used_bit", used_bit);
+            response.put("message", message);
+            response.put("imageUrl", imageUrl);
+            response.put("status", "applied");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/review")
+    public ResponseEntity<String> reviewAd(
+            @RequestParam(required = false) String adId,
+            @RequestBody ReviewRequest reviewRequest) {
+
+        String status = reviewRequest.getStatus();
+
+        // Check if adId is missing
+        if (adId == null || adId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Missing required query parameter 'adId'.");
+        }
+
+        // Validate status
+        if (!status.equals("approved") && !status.equals("rejected")) {
+            return ResponseEntity.badRequest().body("Invalid status. Status must be either 'approved' or 'rejected'.");
+        }
+
+        try {
+            // Update advertisement status
+            boolean updated = advertisementService.updateAdvertisement(adId, status);
+            if (updated) {
+                return ResponseEntity.ok("Application reviewed successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Application not found");
+            }
+        } catch (Exception e) {
+            // Handle internal server error (500)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+    }
 }
