@@ -64,13 +64,11 @@ public class Pattern9 {
         return -1;
     }
 
-    // Method to remove the loop lines after the sum has been converted to use stream
     private void removeLoopLines(ArrayList<String> lines, int startIndex) {
         int endIndex = startIndex;
         while (!lines.get(endIndex).trim().equals("}")) { // Assuming the loop ends with a }
             endIndex++;
         }
-        // Remove lines from start index to end index, inclusive of the ending brace
         for (int i = startIndex; i <= endIndex; i++) {
             lines.remove(startIndex);
         }
