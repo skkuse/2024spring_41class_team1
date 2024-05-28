@@ -3,6 +3,7 @@ package com.skku.BitCO2e.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
+import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
@@ -44,22 +45,10 @@ public class Controller {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(UserRegisterDTO userRegisterDTO) {
-        CompletableFuture<Boolean> future;
-
-        future = userService.createUser(userRegisterDTO);
-        try{
-            boolean success = future.get();
-
-            if(success){
-                return ResponseEntity.ok("User signed up successfully.");
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to sign up user.");
-        }
+        userService.createUser(userRegisterDTO);
+        return ResponseEntity.ok("User signed up successfully.");
     }
+
 
     @PostMapping("/refactoring")
     public String refactoring(@RequestBody String codeInput) {
