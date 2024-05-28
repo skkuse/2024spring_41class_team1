@@ -1,5 +1,6 @@
 package com.skku.BitCO2e.service;
 
+import com.skku.BitCO2e.DTO.UserDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.repository.UserRepository;
@@ -21,7 +22,7 @@ public class UserService {
         user.setEmail(userRegisterDTO.getEmail());
         user.setPassword(userRegisterDTO.getPassword());
 
-        CompletableFuture<Void> future = userRepository.save(user);
+        CompletableFuture<UserDTO> future = userRepository.save(user);
 
 
 
