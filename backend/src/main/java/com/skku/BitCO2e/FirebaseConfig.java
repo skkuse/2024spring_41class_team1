@@ -5,6 +5,8 @@ import com.google.cloud.storage.Bucket;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.StorageClient;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,5 +36,10 @@ public class FirebaseConfig {
     @Bean
     public Bucket firebaseStorageBucket() {
         return StorageClient.getInstance().bucket();
+    }
+
+    @Bean
+    public DatabaseReference usersRef(){
+        return FirebaseDatabase.getInstance().getReference("users");
     }
 }

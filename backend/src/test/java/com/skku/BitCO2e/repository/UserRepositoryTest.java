@@ -6,6 +6,8 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.skku.BitCO2e.DTO.UserDTO;
+import com.skku.BitCO2e.model.Bit;
+import com.skku.BitCO2e.model.Tree;
 import com.skku.BitCO2e.model.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +40,13 @@ class UserRepositoryTest {
     public void save(){
         FirebaseUserRepository userRepository = new FirebaseUserRepository(userRef);
 
-        User user = new User("Go Byeong San", "byeongsan@gmail.com", "hashedpassword");
+        User user = new User();
+        user.setUsername("Go Byeong San");
+        user.setEmail("gobyeongsan@gmail.com");
+        user.setPassword("hashedpassword");
+        user.setBit(new Bit(0,0));
+        user.setTree(new Tree(0,0));
+
         CompletableFuture<UserDTO> saveFuture = userRepository.save(user);
 
         UserDTO userDto = saveFuture.join();
