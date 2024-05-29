@@ -5,7 +5,6 @@ import MainPage from './pages/MainPage';
 import SignUpPage from './pages/SignUpPage';
 import AdminPage from './pages/AdminPage';
 import MyPage from './pages/MyPage';
-import PurchaseAdPage from './pages/PurchaseAdPage';
 import UploadAdPage from './pages/UploadAdPage';
 
 function App() {
@@ -17,7 +16,6 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mypage" element={<MyPage />} />
-        <Route path="/purchasead" element={<PurchaseAdPage />} />
         <Route path="/uploadad" element={<UploadAdPage />} />
       </Routes>
     </Router>

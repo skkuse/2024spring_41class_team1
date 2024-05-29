@@ -15,6 +15,12 @@ const UploadContainer = styled(Container)({
   margin: '50px auto',
 });
 
+const UserBox = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginBottom: 20,
+});
+
 const InfoBox = styled(Box)({
   marginBottom: 20,
   padding: 10,
@@ -45,6 +51,7 @@ const DropzoneContainer = styled(Box)({
 
 const UploadAdPage = () => {
   const USER_NAME = 'USER_NAME'; // Replace with actual user name
+  const OWNED_BITS = 40;
   const [selectedFile, setSelectedFile] = useState(null);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -62,13 +69,17 @@ const UploadAdPage = () => {
     <div>
       <Header />
       <UploadContainer>
-        <Typography variant="h6">hello, {USER_NAME}</Typography>
+      <UserBox>
+          <Typography variant="h6" sx={{ marginRight: 'auto', fontSize: '1.2rem' }}>hello, {USER_NAME}</Typography>
+          <Typography variant="h6" sx={{ marginLeft: 'auto', fontSize: '1.2rem' }}>현재 소유하고 있는 bit: {OWNED_BITS}bits</Typography>
+        </UserBox>
         <InfoBox marginTop="20px">
           <Typography variant="body1">
             <b>알림</b> <br />
+            - 광고는 익일 00시부터 24시간 동안 게시되며 30bit가 차감됩니다.<br/>
             - 비영리적 광고만 업로드 가능합니다 <br />
             - 업로드하신 광고는 관리자 승인을 거쳐 bitCO2e 홈페이지 광고배너에 게시됩니다 <br />
-            - 광고 이미지는 100px*600px 사이즈이어야합니다
+            - 광고 이미지 용량은 20MB 이하여야합니다
           </Typography>
         </InfoBox>
         <TextField
@@ -78,7 +89,7 @@ const UploadAdPage = () => {
           margin="normal"
         />
         <UploadBox>
-          <Typography variant="body1">광고 이미지 업로드. (규격: 100px*600px)</Typography>
+          <Typography variant="body1">광고 이미지 업로드. (용량: 20MB)</Typography>
           <InputLabel htmlFor="upload-button-file">
             <Input
               id="upload-button-file"

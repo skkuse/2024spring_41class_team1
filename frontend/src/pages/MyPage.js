@@ -44,8 +44,8 @@ const MyPage = () => {
   const ACCUMULATED_BITS = 100;
   const OWNED_BITS = 40;
 
-  const handlePurchaseClick = () => {
-    navigate('/purchasead');
+  const handleUploadClick = () => {
+    navigate('/uploadad');
   };
 
   return (
@@ -76,7 +76,7 @@ const MyPage = () => {
             </TableBody>
           </StyledTable>
         </TableContainer>
-        <Button variant="contained" color="primary" fullWidth onClick={handlePurchaseClick}>
+        <Button variant="contained" color="primary" fullWidth onClick={handleUploadClick}>
           광고권 구매
         </Button>
       </MyPageContainer>
