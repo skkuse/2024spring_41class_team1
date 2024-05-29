@@ -1,5 +1,7 @@
 package com.skku.BitCO2e.model;
 
+import com.google.firebase.database.PropertyName;
+
 public class Advertisement {
     private String username;
     private String currentBit;

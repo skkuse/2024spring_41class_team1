@@ -32,8 +32,8 @@ public class AdvertisementService {
 
         Map<String, Object> adData = new HashMap<>();
         adData.put("username", username);
-        adData.put("current_bit", currentBit);
-        adData.put("used_bit", usedBit);
+        adData.put("currentBit", currentBit);
+        adData.put("usedBit", usedBit);
         adData.put("message", message);
         adData.put("imageUrl", imageUrl);
         adData.put("status", "applied");
