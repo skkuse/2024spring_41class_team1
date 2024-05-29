@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -84,12 +86,14 @@ public class AdvertisementService {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                String formattedDate = LocalDateTime.now().format(formatter);
+                LocalDate currentDate = LocalDate.now(ZoneId.systemDefault());
+                LocalDate formattedDate = LocalDate.parse(currentDate.format(formatter));
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Advertisement advertisement = snapshot.getValue(Advertisement.class);
                     if (advertisement != null) {
+                        LocalDate adDate = LocalDate.parse(advertisement.getDate());
                         if (status.equals("approved")) {
-                            if (formattedDate.equals(advertisement.getDate())) {
+                            if (adDate.equals(formattedDate.minusDays(1))) {
                                 advertisement.setKey(snapshot.getKey());
                                 advertisements.add(advertisement);
                             }
