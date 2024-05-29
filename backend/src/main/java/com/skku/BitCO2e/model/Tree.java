@@ -9,10 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    private String username;
-    private String email;
-    private String password;
-    private Bit bit;
-    private Tree tree;
+public class Tree {
+    private long total_bit;
+    private long tree_tier;
 }
