@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../components/Header';
 import { Container, Typography, TextField, Button, Box, Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -27,6 +27,19 @@ const SubmitButton = styled(Button)({
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [id, setId] = useState('');
+  const [pw, setPw] = useState('');
+
+  const handleLoginClick = (event) => {
+    event.preventDefault();
+    if (id === 'admin' && pw === '1111') {
+      navigate('/admin');
+    } else if (id === 'user' && pw === '1111') {
+      navigate('/mypage');
+    } else {
+      alert('Invalid ID or password');
+    }
+  };
 
   const handleSignUpClick = () => {
     navigate('/signup');
@@ -39,10 +52,23 @@ const LoginPage = () => {
         <Typography variant="h4" component="h2" align="center">
           로그인
         </Typography>
-        <Form component="form">
-          <TextField label="ID" variant="outlined" fullWidth />
-          <TextField label="PW" type="password" variant="outlined" fullWidth />
-          <SubmitButton variant="contained" color="primary">
+        <Form component="form" onSubmit={handleLoginClick}>
+          <TextField
+            label="ID"
+            variant="outlined"
+            fullWidth
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
+          <TextField
+            label="PW"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          />
+          <SubmitButton variant="contained" color="primary" type="submit">
             로그인
           </SubmitButton>
           <Typography variant="body2" align="center">
