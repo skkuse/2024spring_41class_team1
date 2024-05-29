@@ -90,9 +90,11 @@ public class AdvertisementService {
                     if (advertisement != null) {
                         if (status.equals("approved")) {
                             if (formattedDate.equals(advertisement.getDate())) {
+                                advertisement.setKey(snapshot.getKey());
                                 advertisements.add(advertisement);
                             }
                         } else {
+                            advertisement.setKey(snapshot.getKey());
                             advertisements.add(advertisement);
                         }
                     }

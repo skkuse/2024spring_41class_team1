@@ -3,6 +3,7 @@ package com.skku.BitCO2e.model;
 import com.google.firebase.database.PropertyName;
 
 public class Advertisement {
+    private String key;
     private String username;
     private String currentBit;
     private String usedBit;
@@ -10,6 +11,7 @@ public class Advertisement {
     private String imageUrl;
     private String status;
     private String date;
+
 
     public Advertisement() {
         // Default constructor required for calls to DataSnapshot.getValue(Advertisement.class)
@@ -40,4 +42,7 @@ public class Advertisement {
     public void setStatus(String status) { this.status = status; }
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
+
+    public String getKey() { return key; } // Getter for the Firebase key
+    public void setKey(String key) { this.key = key; } // Setter for the Firebase key
 }
