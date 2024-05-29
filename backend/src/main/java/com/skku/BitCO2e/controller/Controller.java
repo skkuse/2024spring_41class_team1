@@ -112,8 +112,8 @@ public class Controller {
 
             Map<String, Object> response = new HashMap<>();
             response.put("username", username);
-            response.put("current_bit", current_bit);
-            response.put("used_bit", used_bit);
+            response.put("currentBit", current_bit);
+            response.put("usedBit", used_bit);
             response.put("message", message);
             response.put("imageUrl", imageUrl);
             response.put("status", "applied");
