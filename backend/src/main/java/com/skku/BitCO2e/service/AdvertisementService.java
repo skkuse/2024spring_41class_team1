@@ -39,7 +39,7 @@ public class AdvertisementService {
         adData.put("imageUrl", imageUrl);
         adData.put("status", "applied");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = LocalDateTime.now().format(formatter);
         adData.put("date", formattedDate);
 
@@ -60,15 +60,17 @@ public class AdvertisementService {
     public boolean updateAdvertisement(String adId, String status) {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements").child(adId);
 
-        // Check if the advertisement exists
         if (adRef.getKey() == null) {
             return false; // Advertisement not found
         }
 
-        // Update the status field
-        adRef.child("status").setValueAsync(status);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = LocalDateTime.now().format(formatter);
 
-        return true; // Advertisement updated successfully
+        adRef.child("status").setValueAsync(status);
+        adRef.child("date").setValueAsync(formattedDate);
+
+        return true;
     }
 
 }
