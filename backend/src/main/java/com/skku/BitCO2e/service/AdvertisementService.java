@@ -3,17 +3,16 @@ package com.skku.BitCO2e.service;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.*;
+import com.skku.BitCO2e.model.Advertisement;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 public class AdvertisementService {
     private final Bucket storageBucket;
@@ -71,6 +70,44 @@ public class AdvertisementService {
         adRef.child("date").setValueAsync(formattedDate);
 
         return true;
+    }
+
+    public List<Advertisement> getAdvertisementsByStatus(String status) throws InterruptedException {
+        List<Advertisement> advertisements = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements");
+
+        Query query = adRef.orderByChild("status").equalTo(status);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedDate = LocalDateTime.now().format(formatter);
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Advertisement advertisement = snapshot.getValue(Advertisement.class);
+                    if (advertisement != null) {
+                        if (status.equals("approved")) {
+                            if (formattedDate.equals(advertisement.getDate())) {
+                                advertisements.add(advertisement);
+                            }
+                        } else {
+                            advertisements.add(advertisement);
+                        }
+                    }
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                latch.countDown();
+            }
+        });
+
+        latch.await();
+        return advertisements;
     }
 
 }
