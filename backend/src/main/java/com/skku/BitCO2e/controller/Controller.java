@@ -3,6 +3,7 @@ package com.skku.BitCO2e.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
+import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
@@ -12,14 +13,12 @@ import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -76,7 +75,7 @@ public class Controller {
         }
     }
 
-    @PostMapping("/advertisement")
+    @PostMapping("/advertisements")
     public ResponseEntity<Object> requestAd(
             @RequestParam String username,
             @RequestParam String current_bit,
@@ -113,14 +112,29 @@ public class Controller {
 
             Map<String, Object> response = new HashMap<>();
             response.put("username", username);
-            response.put("current_bit", current_bit);
-            response.put("used_bit", used_bit);
+            response.put("currentBit", current_bit);
+            response.put("usedBit", used_bit);
             response.put("message", message);
             response.put("imageUrl", imageUrl);
             response.put("status", "applied");
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IOException e) {
+            return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/advertisements")
+    public ResponseEntity<Object> getAdvertisementsByStatus(@RequestParam String status) {
+        if (!status.equals("applied") && !status.equals("approved")) {
+            return new ResponseEntity<>("Invalid status parameter", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            List<Advertisement> advertisements = advertisementService.getAdvertisementsByStatus(status);
+            return new ResponseEntity<>(advertisements, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e);
             return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -155,4 +169,5 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
+
 }
