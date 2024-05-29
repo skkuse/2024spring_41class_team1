@@ -8,13 +8,14 @@ import com.skku.BitCO2e.service.AdvertisementService;
 import com.skku.BitCO2e.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class SpringConfig {
 
     @Bean
-    public UserService userService(UserRepository userRepository) {
-        return new UserService(userRepository);
+    public UserService userService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return new UserService(userRepository, passwordEncoder);
     }
 
     @Bean
