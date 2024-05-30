@@ -1,4 +1,4 @@
-package com.skku.BitCO2e;
+package com.skku.BitCO2e.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +18,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
+                .formLogin((formLogin) -> formLogin
+//                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .defaultSuccessUrl("/")
+                )
         ;
 
         return http.build();

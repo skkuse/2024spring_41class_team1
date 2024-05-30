@@ -2,6 +2,8 @@ package com.skku.BitCO2e.repository;
 
 import com.google.firebase.database.*;
 import com.skku.BitCO2e.DTO.UserDTO;
+import com.skku.BitCO2e.model.Bit;
+import com.skku.BitCO2e.model.Tree;
 import com.skku.BitCO2e.model.User;
 
 import java.util.ArrayList;
@@ -70,15 +72,18 @@ public class FirebaseUserRepository implements UserRepository {
         emailQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                List<UserDTO> userDtoList = new ArrayList<>();
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     String userId = userSnapshot.getKey();
                     User user = userSnapshot.getValue(User.class);
                     UserDTO userDto = userToUserDTO(userId, user);
-
-                    future.complete(userDto);
-                    return; // iterate only once
+                    userDtoList.add(userDto);
                 }
-                future.complete(null); // if no user, return null
+                if (!userDtoList.isEmpty()) {
+                    future.complete(userDtoList.get(0)); // 반환할 사용자가 여러 명이라면 첫 번째 사용자 반환
+                } else {
+                    future.complete(null); // 이메일과 일치하는 사용자가 없는 경우 null 반환
+                }
             }
 
             @Override
@@ -135,18 +140,13 @@ public class FirebaseUserRepository implements UserRepository {
         return future;
     }
 
-    public UserDTO userSnapshotToUserDTO(DataSnapshot userSnapshot) {
-        String userId = userSnapshot.getKey();
-        String username = userSnapshot.child("username").getValue(String.class);
-        String userEmail = userSnapshot.child("email").getValue(String.class);
-        String password = userSnapshot.child("password").getValue(String.class);
-        return new UserDTO(userId, username, userEmail, password);
-    }
     public UserDTO userToUserDTO(String userId,User user) {
         String username = user.getUsername();
         String userEmail = user.getEmail();
         String password = user.getPassword();
-        return new UserDTO(userId, username, userEmail, password);
+        Bit bit = user.getBit();
+        Tree tree = user.getTree();
+        return new UserDTO(userId, username, userEmail, password, bit, tree);
     }
 
 }
