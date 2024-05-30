@@ -10,7 +10,6 @@ import com.skku.BitCO2e.model.Bit;
 import com.skku.BitCO2e.model.Tree;
 import com.skku.BitCO2e.model.User;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +53,28 @@ class UserRepositoryTest {
         CompletableFuture<UserDTO> getUserFuture = userRepository.findById(userDto.getId());
         UserDTO retrievedUserDto = getUserFuture.join();
 
+        Assertions.assertThat(retrievedUserDto.getId()).isEqualTo(userDto.getId());
+    }
+
+    @Test
+    public void findByEmail(){
+        FirebaseUserRepository userRepository = new FirebaseUserRepository(userRef);
+
+        User user = new User();
+        user.setUsername("Go Byeong San2");
+        user.setEmail("gobyeongsan3@gmail.com");
+        user.setPassword("hashedpassword2");
+        user.setBit(new Bit(0,0));
+        user.setTree(new Tree(0,0));
+
+        CompletableFuture<UserDTO> saveFuture = userRepository.save(user);
+
+        UserDTO userDto = saveFuture.join();
+
+        CompletableFuture<UserDTO> getUserFuture = userRepository.findByEmail(user.getEmail());
+        UserDTO retrievedUserDto = getUserFuture.join();
+        System.out.println(retrievedUserDto.getEmail());
+        System.out.println(userDto.getEmail());
         Assertions.assertThat(retrievedUserDto.getId()).isEqualTo(userDto.getId());
     }
 

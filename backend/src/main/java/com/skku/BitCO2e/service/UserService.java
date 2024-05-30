@@ -6,6 +6,7 @@ import com.skku.BitCO2e.model.Bit;
 import com.skku.BitCO2e.model.Tree;
 import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,11 +15,12 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public void createUser(UserRegisterDTO userRegisterDTO) {
