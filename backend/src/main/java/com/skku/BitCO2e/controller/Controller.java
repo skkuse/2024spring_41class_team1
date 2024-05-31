@@ -1,14 +1,16 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skku.BitCO2e.DTO.AnalyzeRequestDTO;
+import com.skku.BitCO2e.DTO.AnalyzeResponseDTO;
 import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.Advertisement;
-import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
 import com.skku.BitCO2e.service.AdvertisementService;
+import com.skku.BitCO2e.service.CodeInputService;
 import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,14 +30,17 @@ public class Controller {
     private final UserService userService;
     private final AdvertisementService advertisementService;
 
+    private final CodeInputService codeInputService;
+
     private final Pattern1 pattern1;
     private final Pattern2 pattern2;
     private final Pattern3 pattern3;
 
     @Autowired
-    public Controller(UserService userService, AdvertisementService advertisementService) {
+    public Controller(UserService userService, AdvertisementService advertisementService, CodeInputService codeInputService) {
         this.userService = userService;
         this.advertisementService = advertisementService;
+        this.codeInputService = codeInputService;
 
         this.pattern1 = new Pattern1();
         this.pattern2 = new Pattern2();
@@ -170,4 +175,18 @@ public class Controller {
         }
     }
 
+    @PostMapping("/compare")
+    public ResponseEntity<AnalyzeResponseDTO> compareAnalyzeCE(@RequestBody AnalyzeRequestDTO request) {
+        try {
+            AnalyzeResponseDTO response = codeInputService.compareCarbonEmissions(request);
+            if (response.inputCarbonEmissions() == -1 || response.outputCarbonEmissions() == -1) {
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            AnalyzeResponseDTO errorResponse = new AnalyzeResponseDTO((double)-1, (double)-1, (int)-1, (double)-1, (double)-1);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
