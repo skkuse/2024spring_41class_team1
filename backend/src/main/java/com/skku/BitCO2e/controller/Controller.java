@@ -6,7 +6,6 @@ import com.skku.BitCO2e.DTO.AnalyzeResponseDTO;
 import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.model.Advertisement;
-import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
