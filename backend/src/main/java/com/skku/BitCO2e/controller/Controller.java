@@ -177,7 +177,7 @@ public class Controller {
     }
 
     @PostMapping("/compare")
-    public ResponseEntity<AnalyzeResponseDTO> handlePostRequest(@RequestBody AnalyzeRequestDTO request) {
+    public ResponseEntity<AnalyzeResponseDTO> compareAnalyzeCE(@RequestBody AnalyzeRequestDTO request) {
         try {
             AnalyzeResponseDTO response = codeInputService.compareCarbonEmissions(request);
             if (response.inputCarbonEmissions() == -1 || response.outputCarbonEmissions() == -1) {
@@ -190,5 +190,4 @@ public class Controller {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
