@@ -86,14 +86,52 @@ const CopyButton = styled(Button)({
 const MainPage = () => {
 
   const text = useState('');
-  const editorRef = useRef(null);
+  const inputRef = useRef('');
+  const resultRef = useRef(null);
 
   const OnPageLoad = () => {
 
   };
+
+  const SetEditor = (files) => {
+    if (files.length !== 1) {
+      alert("파일은 한 번에 하나씩 업로드해야 합니다.");
+      return -1;
+    }
+
+    const file = files[0];
+
+    let fileReader = new FileReader();
+    fileReader.onload = () => {
+      if (!file.name.match(/(.*?)\.(txt|java)$/)) {
+        if (!window.confirm("Java 소스코드 형식의 파일이 아닙니다.\n그래도 여시겠습니까?")) {
+          return -1;
+        }
+      }
+      inputRef.current.editor.setValue(fileReader.result);
+    };
+    fileReader.readAsText(file);
+  }
+
+  const HandleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const FileDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    SetEditor(e.dataTransfer.files);
+  };
   
   const BrowseFile = () => {
-    
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = function (e) {
+      SetEditor(e.target.files);
+    }
+    input.click();
   };
 
   const Convert = async () => {
@@ -117,8 +155,7 @@ const MainPage = () => {
   };
 
   const CopyToClipboard = (text) => {
-    console.log(editorRef);
-    navigator.clipboard.writeText(editorRef.current.editor.getValue())
+    navigator.clipboard.writeText(resultRef.current.editor.getValue())
       .then(() => {
         alert("클립보드에 성공적으로 복사하였습니다.");
       })
@@ -138,11 +175,11 @@ const MainPage = () => {
         <AdBanner>Ad_1</AdBanner>
         <Container>
           <RefactoringArea>
-            <DropBox><FileUpload fontSize='large'></FileUpload><p>Drag and drop your source code!</p></DropBox>
+            <DropBox onDrop={FileDrop} onDragOver={HandleDragOver}><FileUpload fontSize='large'></FileUpload><p>Drag and drop your source code!</p></DropBox>
             <UploadButton onClick={BrowseFile}>...or browse your file</UploadButton>
-            <CodeField readOnly={false} theme='terminal' placeholder='Input your source code here.'></CodeField>
+            <CodeField readOnly={false} theme='terminal' placeholder='Input your source code here.' ref={inputRef}></CodeField>
             <ConvertButton variant="contained" color="primary" onClick={Convert}>Convert!</ConvertButton>
-            <CodeField readOnly={true} theme='mono_industrial' placeholder='Refactored code will be here.' ref={editorRef}></CodeField>
+            <CodeField readOnly={true} theme='mono_industrial' placeholder='Refactored code will be here.' ref={resultRef}></CodeField>
             <CopyButton variant="contained" color="primary" onClick={CopyToClipboard}>Copy to your clipboard</CopyButton>
           </RefactoringArea>
         </Container>
