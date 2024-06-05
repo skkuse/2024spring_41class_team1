@@ -7,20 +7,29 @@ import org.springframework.stereotype.Service;
 public class BitService {
 
     public void addBits(String userId, long bitsToAdd) {
-        DatabaseReference currentBitRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("bit").child("current_bit");
+        DatabaseReference bitRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("bit");
 
-        currentBitRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        bitRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Long currentBit = dataSnapshot.getValue(Long.class);
-                    if (currentBit != null) {
+                    Long currentBit = dataSnapshot.child("current_bit").getValue(Long.class);
+                    Long totalBit = dataSnapshot.child("total_bit").getValue(Long.class);
+
+                    if (currentBit != null && totalBit != null) {
                         currentBit += bitsToAdd;
-                        currentBitRef.setValueAsync(currentBit);
+                        totalBit += bitsToAdd;
+
+                        bitRef.child("current_bit").setValueAsync(currentBit);
+                        bitRef.child("total_bit").setValueAsync(totalBit);
+
                         System.out.println("Updated Current Bit: " + currentBit);
+                        System.out.println("Updated Total Bit: " + totalBit);
+                    } else {
+                        System.out.println("Either current_bit or total_bit does not exist.");
                     }
                 } else {
-                    System.out.println("current_bit does not exist.");
+                    System.out.println("bit data does not exist.");
                 }
             }
 

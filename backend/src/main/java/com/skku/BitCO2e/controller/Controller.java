@@ -82,6 +82,11 @@ public class Controller {
         }
     }
 
+    @PostMapping("/bit")
+    public void addBit(@RequestBody String userId) {
+        bitService.addBits(userId, 10);
+    }
+
     @PostMapping("/advertisements")
     public ResponseEntity<Object> requestAd(
             @RequestParam String userId,
