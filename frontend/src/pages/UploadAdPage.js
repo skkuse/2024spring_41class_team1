@@ -47,6 +47,7 @@ const DropzoneContainer = styled(Box)({
   justifyContent: 'center',
   backgroundColor: '#fafafa',
   flexDirection: 'column',
+  userSelect: 'none',
 });
 
 const UploadAdPage = () => {

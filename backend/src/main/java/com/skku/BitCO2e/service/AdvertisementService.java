@@ -27,13 +27,13 @@ public class AdvertisementService {
         }
     }
 
-    public void createAdvertisement(String username, String currentBit, String usedBit, String message, String imageUrl) {
+    public void createAdvertisement(String userId, String currentBit, String usedBit, String message, String imageUrl) {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements");
 
         String adId = adRef.push().getKey();
 
         Map<String, Object> adData = new HashMap<>();
-        adData.put("username", username);
+        adData.put("userId", userId);
         adData.put("currentBit", currentBit);
         adData.put("usedBit", usedBit);
         adData.put("message", message);
