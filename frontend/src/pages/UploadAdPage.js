@@ -52,6 +52,7 @@ const DropzoneContainer = styled(Box)({
 const UploadAdPage = () => {
   const USER_NAME = 'USER_NAME'; // Replace with actual user name
   const OWNED_BITS = 40;
+  const [adName, setAdName] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -65,11 +66,45 @@ const UploadAdPage = () => {
     setSelectedFile(file);
   };
 
+  const handleConfirmation = () => {
+    if (!adName) {
+      alert('광고 이름을 입력해주세요.');
+    } else if (!selectedFile) {
+      alert('이미지를 업로드해주세요.');
+    } else if (selectedFile.size > 20 * 1024 * 1024) {
+      alert('이미지 용량이 20MB를 초과합니다.');
+    } else {
+      const formData = new FormData();
+      formData.append('username', USER_NAME);
+      formData.append('current_bit', OWNED_BITS);
+      formData.append('used_bit', ''); // Fill this with the appropriate value
+      formData.append('message', adName);
+      formData.append('image', selectedFile);
+
+      // Send POST request
+      fetch('http://localhost:8080/advertisements', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData,
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to upload advertisement.');
+        }
+        alert('광고가 성공적으로 업로드되었습니다.');
+        // Perform any additional actions after successful upload
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    }
+  };
+
   return (
     <div>
       <Header />
       <UploadContainer>
-      <UserBox>
+        <UserBox>
           <Typography variant="h6" sx={{ marginRight: 'auto', fontSize: '1.2rem' }}>hello, {USER_NAME}</Typography>
           <Typography variant="h6" sx={{ marginLeft: 'auto', fontSize: '1.2rem' }}>현재 소유하고 있는 bit: {OWNED_BITS}bits</Typography>
         </UserBox>
@@ -87,6 +122,8 @@ const UploadAdPage = () => {
           variant="outlined"
           fullWidth
           margin="normal"
+          value={adName}
+          onChange={(e) => setAdName(e.target.value)}
         />
         <UploadBox>
           <Typography variant="body1">광고 이미지 업로드. (용량: 20MB)</Typography>
@@ -111,7 +148,13 @@ const UploadAdPage = () => {
             </Typography>
           )}
         </DropzoneContainer>
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: 20 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          style={{ marginTop: 20 }}
+          onClick={handleConfirmation}
+        >
           확인
         </Button>
       </UploadContainer>

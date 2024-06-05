@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -19,6 +19,7 @@ const Title = styled(Typography)({
 
 const AdminPage = () => {
   const [open, setOpen] = useState(false);
+  const [advertisements, setAdvertisements] = useState([]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -27,6 +28,20 @@ const AdminPage = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    fetch('http://localhost:8080/advertisements?status=applied', {
+        method: 'GET',
+        mode: 'no-cors',
+      })
+      .then(response => response.json())
+      .then(data => {
+        setAdvertisements(data);
+      })
+      .catch(error => {
+        console.error('Error fetching advertisements:', error);
+      });
+  }, []);
 
   return (
     <div>
@@ -47,25 +62,27 @@ const AdminPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell>Sample Ad</TableCell>
-                <TableCell>account</TableCell>
-                <TableCell>
-                  <Button variant="outlined" onClick={handleClickOpen}>
-                    미리보기
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button variant="contained" color="primary">
-                    승인
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button variant="contained" color="secondary">
-                    거절
-                  </Button>
-                </TableCell>
-              </TableRow>
+              {advertisements.map(advertisement => (
+                <TableRow key={advertisement.key}>
+                  <TableCell>{advertisement.message}</TableCell>
+                  <TableCell>{advertisement.username}</TableCell>
+                  <TableCell>
+                    <Button variant="outlined" onClick={handleClickOpen}>
+                      미리보기
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="primary">
+                      승인
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="secondary">
+                      거절
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
