@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @AllArgsConstructor
 public class AdvertisementDTO {
-    private String username;
+    private String userId;
     private Integer current_bit;
     private Integer used_bit;
     private String message;
