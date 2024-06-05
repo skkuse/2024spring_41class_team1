@@ -36,12 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-.informationArea{
-  width: 1080px;
-  height: max-content;
-  min-height: 320px;
-  display: flex;
-  background-color: #9ebe9e;
-  flex-direction: column;
-}
