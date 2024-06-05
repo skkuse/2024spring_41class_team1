@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ReviewDTO {
     private String status;
 }
