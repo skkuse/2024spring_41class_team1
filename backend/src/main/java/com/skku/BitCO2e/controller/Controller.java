@@ -10,6 +10,7 @@ import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
 import com.skku.BitCO2e.service.AdvertisementService;
+import com.skku.BitCO2e.service.BitService;
 import com.skku.BitCO2e.service.CodeInputService;
 import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 public class Controller {
     private final UserService userService;
     private final AdvertisementService advertisementService;
-
+    private final BitService bitService;
     private final CodeInputService codeInputService;
 
     private final Pattern1 pattern1;
@@ -37,9 +38,10 @@ public class Controller {
     private final Pattern3 pattern3;
 
     @Autowired
-    public Controller(UserService userService, AdvertisementService advertisementService, CodeInputService codeInputService) {
+    public Controller(UserService userService, AdvertisementService advertisementService, BitService bitService, CodeInputService codeInputService) {
         this.userService = userService;
         this.advertisementService = advertisementService;
+        this.bitService = bitService;
         this.codeInputService = codeInputService;
 
         this.pattern1 = new Pattern1();
@@ -113,11 +115,10 @@ public class Controller {
             int currentBits = Integer.parseInt(current_bit);
             int usedBits = Integer.parseInt(used_bit);
             int newBitValue = currentBits - usedBits;
-//            userService.updateUserBits(username, newBitValue);
 
             Map<String, Object> response = new HashMap<>();
             response.put("userId", userId);
-            response.put("currentBit", current_bit);
+            response.put("currentBit", newBitValue);
             response.put("usedBit", used_bit);
             response.put("message", message);
             response.put("imageUrl", imageUrl);
@@ -165,6 +166,9 @@ public class Controller {
             // Update advertisement status
             boolean updated = advertisementService.updateAdvertisement(adId, status);
             if (updated) {
+                if (status.equals("approved")){
+                    bitService.subtractBits(adId);
+                }
                 return ResponseEntity.ok("Application reviewed successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Application not found");
