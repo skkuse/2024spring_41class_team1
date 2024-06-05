@@ -82,7 +82,7 @@ public class Controller {
 
     @PostMapping("/advertisements")
     public ResponseEntity<Object> requestAd(
-            @RequestParam String username,
+            @RequestParam String userId,
             @RequestParam String current_bit,
             @RequestParam String used_bit,
             @RequestParam String message,
@@ -90,7 +90,7 @@ public class Controller {
 
         CompletableFuture<ResponseEntity<Object>> responseFuture = new CompletableFuture<>();
 
-        if (username.isEmpty() || current_bit.isEmpty() || used_bit.isEmpty() || message.isEmpty() || image.isEmpty()) {
+        if (userId.isEmpty() || current_bit.isEmpty() || used_bit.isEmpty() || message.isEmpty() || image.isEmpty()) {
             return new ResponseEntity<>("Missing required field", HttpStatus.BAD_REQUEST);
         }
 
@@ -107,7 +107,7 @@ public class Controller {
             String imageUrl = advertisementService.uploadAdFile(image);
 
             // Save advertisement data in Firebase Realtime Database
-            advertisementService.createAdvertisement(username, current_bit, used_bit, message, imageUrl);
+            advertisementService.createAdvertisement(userId, current_bit, used_bit, message, imageUrl);
 
             // Update user's bit points
             int currentBits = Integer.parseInt(current_bit);
@@ -116,7 +116,7 @@ public class Controller {
 //            userService.updateUserBits(username, newBitValue);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("username", username);
+            response.put("userId", userId);
             response.put("currentBit", current_bit);
             response.put("usedBit", used_bit);
             response.put("message", message);
