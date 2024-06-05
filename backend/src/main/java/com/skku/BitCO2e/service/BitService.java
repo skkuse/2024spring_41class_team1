@@ -40,7 +40,7 @@ public class BitService {
         });
     }
 
-    public void subtractBits(String adId) {
+    public void subtractBits(String adId, long bitsToSubtract) {
         DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements").child(adId);
 
         adRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -48,10 +48,9 @@ public class BitService {
             public void onDataChange(DataSnapshot adSnapshot) {
                 if (adSnapshot.exists()) {
                     String userId = adSnapshot.child("userId").getValue(String.class);
-                    String usedBitStr = adSnapshot.child("usedBit").getValue(String.class);
-                    if (userId != null && usedBitStr != null) {
+
+                    if (userId != null) {
                         try {
-                            Long usedBit = Long.parseLong(usedBitStr);
                             DatabaseReference currentBitRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("bit").child("current_bit");
 
                             currentBitRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -60,8 +59,8 @@ public class BitService {
                                     if (dataSnapshot.exists()) {
                                         Long currentBit = dataSnapshot.getValue(Long.class);
                                         if (currentBit != null) {
-                                            if (currentBit >= usedBit) {
-                                                currentBit -= usedBit;
+                                            if (currentBit >= bitsToSubtract) {
+                                                currentBit -= bitsToSubtract;
                                                 currentBitRef.setValueAsync(currentBit);
                                                 System.out.println("Updated Current Bit: " + currentBit);
                                             } else {
