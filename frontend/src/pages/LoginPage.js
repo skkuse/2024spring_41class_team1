@@ -30,8 +30,34 @@ const LoginPage = () => {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
 
-  const handleLoginClick = (event) => {
+  const handleLoginClick = async (event) => {
     event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('email', id);
+    formData.append('password', pw);
+
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      });
+      console.log(response.status);
+      if (response.ok && response.status === 302) { //로그인 성공시
+        alert("login success");
+        //navigate('/');
+      } else{ //로그인 실패시
+        alert("login failed");
+        //navigate('/login?error');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please check your connection.');
+    }
+  };
+
+/*
     if (id === 'admin' && pw === '1111') {
       navigate('/admin');
     } else if (id === 'user' && pw === '1111') {
@@ -39,7 +65,7 @@ const LoginPage = () => {
     } else {
       alert('Invalid ID or password');
     }
-  };
+*/
 
   const handleSignUpClick = () => {
     navigate('/signup');
