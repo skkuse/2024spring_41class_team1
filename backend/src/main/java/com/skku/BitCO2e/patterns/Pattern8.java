@@ -2,9 +2,9 @@ package com.skku.BitCO2e.patterns;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class Pattern8 {
+    //Scanner vs BufferedReader
     public String main(String inputText) {
         try {
             // 코드 분할

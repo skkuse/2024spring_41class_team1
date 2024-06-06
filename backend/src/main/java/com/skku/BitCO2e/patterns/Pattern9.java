@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Pattern9 {
+    //IntStream.of(배열).sum()  Stream 사용
     public String main(String inputText) {
         try {
 

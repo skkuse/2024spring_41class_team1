@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Pattern7 {
+    //Concat() is better than String.format()
     public String main(String inputText) {
         try {
             // 코드 분할

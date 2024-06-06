@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class Pattern6 {
+    //Instantiate in constructor
     public String main(String inputText) {
         boolean isDetected = false;
         int classStartIndex = 0;
