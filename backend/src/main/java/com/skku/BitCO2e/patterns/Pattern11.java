@@ -2,7 +2,6 @@ package com.skku.BitCO2e.patterns;
 
 import java.util.*;
 import java.util.regex.*;
-import java.util.stream.Collectors;
 
 public class Pattern11 {
     //Comparator -> Sorted
@@ -25,12 +24,12 @@ public class Pattern11 {
                 isDetected = true;
             }
 
-            // Modify
+            // 수정
             if (isDetected) {
                 String sortLine = lines.get(sortStartIndex);
                 String listName = sortLine.substring(sortLine.indexOf('(') + 1, sortLine.indexOf(',')).trim();
 
-                // Find the end of the comparator definition
+                // Find the end of the comparator
                 int endOfComparatorIndex = findEndOfComparator(lines, comparatorStartIndex);
 
                 // Extract comparator logic
@@ -38,12 +37,12 @@ public class Pattern11 {
                 for (int i = comparatorStartIndex + 1; i < endOfComparatorIndex; i++) {
                     comparatorLogic.append(lines.get(i)).append("\n");
                 }
-                // Remove old comparator definition
+                // Remove old comparator
                 for (int i = comparatorStartIndex; i <= endOfComparatorIndex; i++) {
                     lines.set(i, "##MUSTDELETE##");
                 }
                 lines.removeIf(item -> item.equals("##MUSTDELETE##"));
-
+                //test
                 System.out.println("comparator"+comparatorLogic);
 
                 // Replace with Stream.sorted
@@ -54,7 +53,7 @@ public class Pattern11 {
 
             }
 
-            // Add import for Collectors if a change was made
+            // Add import for Collectors
             if (isDetected) {
                 addCollectorsImportIfNeeded(lines);
                 replaceClassNameIfNeeded(lines, "Buggy", "Fixed");
@@ -71,7 +70,7 @@ public class Pattern11 {
     private int getLineIndex(String[] lines, int charIndex) {
         int count = 0;
         for (int i = 0; i < lines.length; i++) {
-            count += lines[i].length() + 1;  // +1 for the newline character
+            count += lines[i].length() + 1;  // +1 for the newline
             if (count > charIndex) {
                 return i;
             }
