@@ -5,6 +5,7 @@ import java.util.regex.*;
 import java.util.stream.Collectors;
 
 public class Pattern11 {
+    //Comparator -> Sorted
     public String main(String inputText) {
         int comparatorStartIndex = -1;
         int sortStartIndex = -1;
