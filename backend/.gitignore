@@ -25,6 +25,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+Code.class
 
 ### NetBeans ###
 /nbproject/private/
