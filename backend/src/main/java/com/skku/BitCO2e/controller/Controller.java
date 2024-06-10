@@ -95,8 +95,6 @@ public class Controller {
             @RequestParam String message,
             @RequestParam MultipartFile image) {
 
-        CompletableFuture<ResponseEntity<Object>> responseFuture = new CompletableFuture<>();
-
         if (userId.isEmpty() || current_bit.isEmpty() || used_bit.isEmpty() || message.isEmpty() || image.isEmpty()) {
             return new ResponseEntity<>("Missing required field", HttpStatus.BAD_REQUEST);
         }
