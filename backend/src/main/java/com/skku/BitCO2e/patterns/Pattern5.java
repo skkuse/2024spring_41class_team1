@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Pattern5 {
+    //Skipping Temporary Variable
     public String main(String inputText) {
         boolean isDetected = false;
         int classStartIndex = 0;

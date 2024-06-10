@@ -170,7 +170,7 @@ public class Controller {
             boolean updated = advertisementService.updateAdvertisement(adId, status);
             if (updated) {
                 if (status.equals("approved")){
-                    bitService.subtractBits(adId);
+                    bitService.subtractBits(adId, 50);
                 }
                 return ResponseEntity.ok("Application reviewed successfully");
             } else {
