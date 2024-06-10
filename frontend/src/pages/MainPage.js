@@ -88,7 +88,6 @@ const MainPage = () => {
     AdUrls = ["/logo.png"];
     AdRef[0].current.initialize(AdUrls, 0);
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
-    console.log(AdUrls, AdUrls.length/AdRef.length);
   };
 
   const OnPageLoad = async () => {
@@ -111,7 +110,6 @@ const MainPage = () => {
 
     AdRef[0].current.initialize(AdUrls, 0);
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
-    console.log(AdUrls, AdUrls.length/AdRef.length);
   };
 
   const SetEditor = (files) => {
@@ -157,7 +155,6 @@ const MainPage = () => {
 
   const Convert = async () => {
     const body = inputRef.current.editor.getValue();
-    console.log(body);
     try {
       const response = await fetch('http://localhost:8080/refactoring', {
         method: 'POST',
