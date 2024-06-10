@@ -1,8 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Header from '../components/Header';
+import AdBanner from '../components/AdBanner';
 import CodeField from '../components/CodeField';
 import { Button, styled, Box } from '@mui/material';
 import { FileUpload } from '@mui/icons-material';
+
+
 
 const Section = styled(Box)({
   minHeight: 30,
@@ -12,7 +15,7 @@ const Section = styled(Box)({
   alignItems: 'center',
 });
 
-const Bulletin = styled(Box)({
+const Bulletin = styled('img')({
   margin: 10,
   width: 1000,
   height: 250,
@@ -31,16 +34,6 @@ const RefactoringArea = styled(Box)({
   width: 1000,
   display: 'flex',
   flexDirection: 'column',
-});
-
-const AdBanner = styled(Box)({
-  margin: 50,
-  width: 150,
-  height: 600,
-  background: 'lightgray',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
 });
 
 const DropBox = styled(Box)({
@@ -85,12 +78,40 @@ const CopyButton = styled(Button)({
 
 const MainPage = () => {
 
-  const text = useState('');
-  const inputRef = useRef('');
+  const inputRef = useRef(null);
   const resultRef = useRef(null);
+  const AdRef = [ useRef(null), useRef(null) ];
 
-  const OnPageLoad = () => {
+  var AdUrls = [];
 
+  const defaultPageSet = () => {
+    AdUrls = ["/logo.png"];
+    AdRef[0].current.initialize(AdUrls, 0);
+    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
+    console.log(AdUrls, AdUrls.length/AdRef.length);
+  };
+
+  const OnPageLoad = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/advertisement?status=approved', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      response.json().forEach((i) => {
+        AdUrls.push(i.imageUrl);
+      });
+
+    } catch (error) {
+      defaultPageSet();
+    }
+
+    AdRef[0].current.initialize(AdUrls, 0);
+    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
+    console.log(AdUrls, AdUrls.length/AdRef.length);
   };
 
   const SetEditor = (files) => {
@@ -108,7 +129,7 @@ const MainPage = () => {
           return -1;
         }
       }
-      inputRef.current.editor.setValue(fileReader.result);
+      inputRef.current.editor.setValue(fileReader.result, -1);
     };
     fileReader.readAsText(file);
   }
@@ -135,13 +156,15 @@ const MainPage = () => {
   };
 
   const Convert = async () => {
-    try { /*still developing...*/
-      const response = await fetch('/refactoring', {
+    const body = inputRef.current.editor.getValue();
+    console.log(body);
+    try {
+      const response = await fetch('http://localhost:8080/refactoring', {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
         },
-        body: text,
+        body: body,
       });
 
       if (!response.ok) {
@@ -149,6 +172,7 @@ const MainPage = () => {
       }
 
       const data = await response.text();
+      resultRef.current.editor.setValue(data);
     } catch (error) {
       alert("Refactoring에 실패하였습니다.\n잠시 후 다시 시도해주세요.");
     }
@@ -164,15 +188,19 @@ const MainPage = () => {
       })
   };
 
+  useEffect(() => {
+    OnPageLoad();
+  }, []); //페이지 로드시 일회성으로 실행되는 코드: 광고 정보 등 페이지 구성
+
   return (
     <div>
       <Header />
         <Section>
-          <Bulletin>Bulletin</Bulletin>
+          <Bulletin src={"/logo.png"}></Bulletin>
         </Section>
 
       <Section>
-        <AdBanner>Ad_1</AdBanner>
+        <AdBanner ref={AdRef[0]}>Ad_1</AdBanner>
         <Container>
           <RefactoringArea>
             <DropBox onDrop={FileDrop} onDragOver={HandleDragOver}><FileUpload fontSize='large'></FileUpload><p>Drag and drop your source code!</p></DropBox>
@@ -183,7 +211,7 @@ const MainPage = () => {
             <CopyButton variant="contained" color="primary" onClick={CopyToClipboard}>Copy to your clipboard</CopyButton>
           </RefactoringArea>
         </Container>
-        <AdBanner>Ad_2</AdBanner>
+        <AdBanner ref={AdRef[1]}>Ad_2</AdBanner>
       </Section>
       
       <Section>
@@ -191,7 +219,7 @@ const MainPage = () => {
         {/*<ServerInfo></ServerInfo><Analysis></Analysis>*/}
       </Section>
       
-      {/*<Footer>*Copyright, email, info, etc. comes here.*"</Footer>*/}
+      {/*<Footer>*Copyright, email, info, etc. comes here.*"</Footer> ..is this needed?*/}
     </div>
   );
 };
