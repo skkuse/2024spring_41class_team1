@@ -2,11 +2,9 @@ package com.skku.BitCO2e.patterns;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Pattern10 {
+    //Use NIO for large size file
     public String main(String inputText) {
         String[] codes = inputText.split("\n");
         ArrayList<String> lines = new ArrayList<>(List.of(codes));
