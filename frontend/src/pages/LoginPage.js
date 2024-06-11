@@ -54,7 +54,7 @@ const LoginPage = () => {
       if (response.ok && response.status === 200) {
         //로그인 성공시
         alert("login success");
-        //navigate('/');
+        navigate('/');
       } else {
         //로그인 실패시
         alert("login failed");
@@ -65,16 +65,6 @@ const LoginPage = () => {
       alert("Login failed. Please check your connection.");
     }
   };
-
-  /*
-    if (id === 'admin' && pw === '1111') {
-      navigate('/admin');
-    } else if (id === 'user' && pw === '1111') {
-      navigate('/mypage');
-    } else {
-      alert('Invalid ID or password');
-    }
-*/
 
   const handleSignUpClick = () => {
     navigate("/signup");

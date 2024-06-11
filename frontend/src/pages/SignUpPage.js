@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import { Container, Typography, TextField, Button, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { SettingsPower } from '@mui/icons-material';
+import { useNavigate } from "react-router-dom";
 
 const SignUpContainer = styled(Container)({
   marginTop: 50,
@@ -24,35 +26,43 @@ const SubmitButton = styled(Button)({
   marginTop: 15,
 });
 
-const SignUpPage = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const SignUpPage =  () => {
+  const [name, setName] = useState('');
+  const [id, setId] = useState('');
+  const [pw, setPw] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSignUp = () => {
-    if (!username || !email || !password || !confirmPassword) {
+  const handleSignUp = async () => {
+    if (!name || !id || !pw || !confirmPassword) {
       alert('모든 필드를 입력해주세요.');
-    } else if (password !== confirmPassword) {
+    } else if (pw !== confirmPassword) {
       alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
     } else {
       // 서버로 POST 요청 보내기
       const formData = new FormData();
-      formData.append('username', username);
-      formData.append('email', email);
-      formData.append('password', password);
-
-      fetch('http://localhost:8080/signup', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData,
-      })
-      .then(response => {
-        if(response.ok){
-          console.log(response.state);
-        }
-      })
+      formData.append('username', name);
+      formData.append('email', id);
+      formData.append('password', pw);
       
+
+      try{
+        const response = await fetch("/signup", {
+          method: "POST",
+          mode: "no-cors",
+          body: formData,
+        });
+        if (response.ok && response.status === 200){
+          //회원 가입  성공
+          alert("Signup successfully");
+          navigate('/login');
+        } else{
+          //console.log(response.status);
+          alert("signup failed");
+        }
+      }catch(error){
+        alert("signup failed. Please check your connection.");
+      }
     }
   };
 
@@ -68,23 +78,23 @@ const SignUpPage = () => {
             label="USER NAME"
             variant="outlined"
             fullWidth
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
           <TextField
             label="ID"
             variant="outlined"
             fullWidth
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={id}
+            onChange={(e) => setId(e.target.value)}
           />
           <TextField
             label="PW"
             type="password"
             variant="outlined"
             fullWidth
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
           />
           <TextField
             label="PW 확인"
