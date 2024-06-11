@@ -24,6 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserDTO userDTO;
         try {
             userDTO = future.get();
+            System.out.println(userDTO.getEmail());
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
