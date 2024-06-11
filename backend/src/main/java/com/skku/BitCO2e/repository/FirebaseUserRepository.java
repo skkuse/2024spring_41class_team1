@@ -96,6 +96,38 @@ public class FirebaseUserRepository implements UserRepository {
     }
 
     @Override
+    public CompletableFuture<UserDTO> findByUsername(String username) {
+        CompletableFuture<UserDTO> future = new CompletableFuture<>();
+
+        Query emailQuery = usersRef.orderByChild("username").equalTo(username);
+
+        emailQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<UserDTO> userDtoList = new ArrayList<>();
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    User user = userSnapshot.getValue(User.class);
+                    UserDTO userDto = userToUserDTO(userId, user);
+                    userDtoList.add(userDto);
+                }
+                if (!userDtoList.isEmpty()) {
+                    future.complete(userDtoList.get(0)); // 반환할 사용자가 여러 명이라면 첫 번째 사용자 반환
+                } else {
+                    future.complete(null); // 이메일과 일치하는 사용자가 없는 경우 null 반환
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                future.completeExceptionally(databaseError.toException());
+            }
+        });
+
+        return future;
+    }
+
+    @Override
     public CompletableFuture<List<UserDTO>> findAll(){
         CompletableFuture<List<UserDTO>> future = new CompletableFuture<>();
 
@@ -119,6 +151,40 @@ public class FirebaseUserRepository implements UserRepository {
             }
         });
 
+        return future;
+    }
+
+    @Override
+    public CompletableFuture<UserDTO> update(String userId, User user) {
+        CompletableFuture<UserDTO> future = new CompletableFuture<>();
+
+        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // 사용자가 존재하는 경우에만 업데이트 수행
+                    usersRef.child(userId).setValue(user, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            if (databaseError != null) {
+                                future.completeExceptionally(databaseError.toException());
+                            } else {
+                                UserDTO userDTO = userToUserDTO(userId, user);
+                                future.complete(userDTO);
+                            }
+                        }
+                    });
+                } else {
+                    // 사용자가 존재하지 않는 경우, 예외 처리
+                    future.completeExceptionally(new RuntimeException("User with ID " + userId + " does not exist."));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                future.completeExceptionally(databaseError.toException());
+            }
+        });
         return future;
     }
 

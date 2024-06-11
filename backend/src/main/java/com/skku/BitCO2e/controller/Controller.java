@@ -1,14 +1,13 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.skku.BitCO2e.DTO.AnalyzeRequestDTO;
-import com.skku.BitCO2e.DTO.AnalyzeResponseDTO;
-import com.skku.BitCO2e.DTO.ReviewDTO;
-import com.skku.BitCO2e.DTO.UserRegisterDTO;
+import com.google.api.Authentication;
+import com.skku.BitCO2e.DTO.*;
 import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
+import com.skku.BitCO2e.security.UserDetailsImpl;
 import com.skku.BitCO2e.service.AdvertisementService;
 import com.skku.BitCO2e.service.BitService;
 import com.skku.BitCO2e.service.CodeInputService;
@@ -16,6 +15,8 @@ import com.skku.BitCO2e.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +54,11 @@ public class Controller {
     public ResponseEntity<String> signup(UserRegisterDTO userRegisterDTO) {
         userService.createUser(userRegisterDTO);
         return ResponseEntity.ok("User signed up successfully.");
+    }
+
+    @GetMapping("/session")
+    public UserSessionDTO session(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new UserSessionDTO(userDetails);
     }
 
 
