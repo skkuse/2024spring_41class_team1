@@ -42,4 +42,9 @@ public class FirebaseConfig {
     public DatabaseReference usersRef(){
         return FirebaseDatabase.getInstance().getReference("users");
     }
+
+    @Bean
+    public DatabaseReference adsRef(){
+        return FirebaseDatabase.getInstance().getReference("advertisements");
+    }
 }

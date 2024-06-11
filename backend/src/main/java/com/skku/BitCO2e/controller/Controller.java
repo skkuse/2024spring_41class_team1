@@ -1,7 +1,6 @@
 package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.Authentication;
 import com.skku.BitCO2e.DTO.*;
 import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.patterns.Pattern1;
@@ -16,16 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 public class Controller {
@@ -58,7 +54,7 @@ public class Controller {
 
     @GetMapping("/session")
     public UserSessionDTO session(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return new UserSessionDTO(userDetails);
+        return userService.getUserSession(userDetails);
     }
 
 
@@ -93,50 +89,16 @@ public class Controller {
         bitService.addBits(userId, 10);
     }
 
-    @PostMapping("/advertisements")
-    public ResponseEntity<Object> requestAd(
-            @RequestParam String userId,
-            @RequestParam String current_bit,
-            @RequestParam String used_bit,
-            @RequestParam String message,
-            @RequestParam MultipartFile image) {
+    @PostMapping("/advertisement")
+    public ResponseEntity<String> requestAd(@AuthenticationPrincipal UserDetailsImpl userDetails, @Validated AdvertisementRequestDTO advertisementRequestDTO) {
+        String userId = userDetails.getUserId();
 
-        if (userId.isEmpty() || current_bit.isEmpty() || used_bit.isEmpty() || message.isEmpty() || image.isEmpty()) {
-            return new ResponseEntity<>("Missing required field", HttpStatus.BAD_REQUEST);
-        }
-
-//        if (!userService.validateUser(username)) {
-//            return new ResponseEntity<>("Authentication required", HttpStatus.UNAUTHORIZED);
-//        }
-
-        if (image.getSize() > 10 * 1024 * 1024) {
+        if (advertisementRequestDTO.getImg().getSize() > 10 * 1024 * 1024) {
             return new ResponseEntity<>("Image file size exceeds the limit", HttpStatus.PAYLOAD_TOO_LARGE);
         }
 
-        try {
-            // Upload image to Firebase Storage
-            String imageUrl = advertisementService.uploadAdFile(image);
-
-            // Save advertisement data in Firebase Realtime Database
-            advertisementService.createAdvertisement(userId, current_bit, used_bit, message, imageUrl);
-
-            // Update user's bit points
-            int currentBits = Integer.parseInt(current_bit);
-            int usedBits = Integer.parseInt(used_bit);
-            int newBitValue = currentBits - usedBits;
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("userId", userId);
-            response.put("currentBit", newBitValue);
-            response.put("usedBit", used_bit);
-            response.put("message", message);
-            response.put("imageUrl", imageUrl);
-            response.put("status", "applied");
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        advertisementService.createAdvertisement(userId, advertisementRequestDTO);
+        return ResponseEntity.ok("apply advertisement successfully.");
     }
 
     @GetMapping("/advertisements")
@@ -145,13 +107,8 @@ public class Controller {
             return new ResponseEntity<>("Invalid status parameter", HttpStatus.BAD_REQUEST);
         }
 
-        try {
-            List<Advertisement> advertisements = advertisementService.getAdvertisementsByStatus(status);
-            return new ResponseEntity<>(advertisements, HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println(e);
-            return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<AdvertisementDTO> advertisements = advertisementService.getAdvertisementsByStatus(status);
+        return new ResponseEntity<>(advertisements, HttpStatus.OK);
     }
 
     @PostMapping("/review")
@@ -175,7 +132,7 @@ public class Controller {
             // Update advertisement status
             boolean updated = advertisementService.updateAdvertisement(adId, status);
             if (updated) {
-                if (status.equals("approved")){
+                if (status.equals("approved")) {
                     bitService.subtractBits(adId, 50);
                 }
                 return ResponseEntity.ok("Application reviewed successfully");
@@ -198,7 +155,7 @@ public class Controller {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            AnalyzeResponseDTO errorResponse = new AnalyzeResponseDTO((double)-1, (double)-1, (int)-1, (double)-1, (double)-1);
+            AnalyzeResponseDTO errorResponse = new AnalyzeResponseDTO((double) -1, (double) -1, (int) -1, (double) -1, (double) -1);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
