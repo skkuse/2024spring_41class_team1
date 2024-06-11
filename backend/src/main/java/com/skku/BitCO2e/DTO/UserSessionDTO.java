@@ -29,4 +29,12 @@ public class UserSessionDTO {
         bit = userDTO.getBit();
         tree = userDTO.getTree();
     }
+
+    public UserSessionDTO(UserDTO userDTO) {
+        id = userDTO.getId();
+        username = userDTO.getUsername();
+        email = userDTO.getEmail();
+        bit = userDTO.getBit();
+        tree = userDTO.getTree();
+    }
 }

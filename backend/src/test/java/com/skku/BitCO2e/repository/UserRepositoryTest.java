@@ -78,4 +78,32 @@ class UserRepositoryTest {
         Assertions.assertThat(retrievedUserDto.getId()).isEqualTo(userDto.getId());
     }
 
+//    @Test
+//    public void update(){
+//        FirebaseUserRepository userRepository = new FirebaseUserRepository(userRef);
+//
+//        UserDTO user = userRepository.findByUsername("testuser").join();
+//
+//        User newUser = new User();
+//        newUser.setUsername(user.getUsername());
+//        newUser.setEmail(user.getEmail());
+//        newUser.setPassword(user.getPassword());
+//        newUser.setBit(new Bit(200000,200000));
+//        newUser.setTree(new Tree(0,0));
+//
+//        userRepository.update(user.getId(), newUser).join();
+//    }
+
+    @Test
+    public void delete(){
+        FirebaseUserRepository userRepository = new FirebaseUserRepository(userRef);
+
+        CompletableFuture<UserDTO> getUserFuture = userRepository.findByUsername("admin");
+        UserDTO retrievedUserDto = getUserFuture.join();
+        System.out.println(retrievedUserDto);
+        String userId = retrievedUserDto.getId();
+
+        userRepository.delete(userId).join();
+    }
+
 }

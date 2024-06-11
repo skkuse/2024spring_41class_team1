@@ -2,6 +2,7 @@ package com.skku.BitCO2e;
 
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.database.DatabaseReference;
+import com.skku.BitCO2e.repository.AdvertisementRepository;
 import com.skku.BitCO2e.repository.FirebaseUserRepository;
 import com.skku.BitCO2e.repository.UserRepository;
 import com.skku.BitCO2e.service.AdvertisementService;
@@ -24,7 +25,12 @@ public class SpringConfig {
     }
 
     @Bean
-    public AdvertisementService advertisementService(Bucket firebaseStorageBucket) {
-        return new AdvertisementService(firebaseStorageBucket);
+    public AdvertisementService advertisementService(Bucket firebaseStorageBucket, AdvertisementRepository advertisementRepository, UserService userService) {
+        return new AdvertisementService(firebaseStorageBucket, advertisementRepository, userService);
+    }
+
+    @Bean
+    AdvertisementRepository advertisementRepository(DatabaseReference adsRef) {
+        return new AdvertisementRepository(adsRef);
     }
 }

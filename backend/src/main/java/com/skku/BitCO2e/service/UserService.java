@@ -2,14 +2,17 @@ package com.skku.BitCO2e.service;
 
 import com.skku.BitCO2e.DTO.UserDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
+import com.skku.BitCO2e.DTO.UserSessionDTO;
 import com.skku.BitCO2e.model.Bit;
 import com.skku.BitCO2e.model.Tree;
 import com.skku.BitCO2e.model.User;
 import com.skku.BitCO2e.repository.UserRepository;
+import com.skku.BitCO2e.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 public class UserService {
@@ -52,20 +55,36 @@ public class UserService {
 
     public UserDTO findUser(String userId) {
         try {
-            return userRepository.findById(userId).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException("Error occured during find user",e);
+            return userRepository.findById(userId).join();
+        } catch (CompletionException e) {
+            throw new IllegalStateException("Error occurred during find user",e);
         }
+    }
+
+    public UserSessionDTO getUserSession(UserDetailsImpl userDetails) {
+        String userId = userDetails.getUserId();
+        UserDTO userDTO;
+
+        try{
+            userDTO = userRepository.findById(userId).join();
+        } catch (CompletionException e) {
+            throw new IllegalStateException("Error occurred during find user",e);
+        }
+
+        UserSessionDTO userSession = new UserSessionDTO(userDTO);
+        userSession.setAuthorities(userDetails.getAuthorities());
+
+        return userSession;
     }
 
     public void validateDuplicatedUsername(String username) {
         CompletableFuture<UserDTO> future = userRepository.findByUsername(username);
 
         try{
-            UserDTO userDTO = future.get();
+            UserDTO userDTO = future.join();
             if(userDTO != null)
-                throw new IllegalStateException("Duplicated email");
-        } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException("Duplicated username found");
+        } catch (CompletionException e) {
             e.printStackTrace();
             throw new IllegalStateException("Error occured during checking for duplicated username",e);
         }
