@@ -92,7 +92,7 @@ const MainPage = () => {
   const OnPageLoad = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/advertisement?status=approved",
+        "/advertisements?status=approved",
         {
           method: "GET",
         }
