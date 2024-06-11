@@ -24,7 +24,7 @@ public class UserService {
     }
 
     public void createUser(UserRegisterDTO userRegisterDTO) {
-        validateDuplicatedEmail(userRegisterDTO.getEmail());
+        validateDuplicatedUsername(userRegisterDTO.getUsername());
 
         User user = new User();
         user.setUsername(userRegisterDTO.getUsername());
@@ -37,6 +37,19 @@ public class UserService {
         userRepository.save(user).join();
     }
 
+    public void updateUser(UserDTO userDTO) {
+        String userId = userDTO.getId();
+
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setBit(new Bit(0,1));
+        user.setTree(new Tree(0,1));
+
+        userRepository.update(userId, user).join();
+    }
+
     public UserDTO findUser(String userId) {
         try {
             return userRepository.findById(userId).get();
@@ -45,8 +58,8 @@ public class UserService {
         }
     }
 
-    public void validateDuplicatedEmail(String email) {
-        CompletableFuture<UserDTO> future = userRepository.findByEmail(email);
+    public void validateDuplicatedUsername(String username) {
+        CompletableFuture<UserDTO> future = userRepository.findByUsername(username);
 
         try{
             UserDTO userDTO = future.get();
@@ -54,7 +67,7 @@ public class UserService {
                 throw new IllegalStateException("Duplicated email");
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new IllegalStateException("Error occured during checking for duplicated email",e);
+            throw new IllegalStateException("Error occured during checking for duplicated username",e);
         }
     }
 }
