@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
-import Header from '../components/Header';
-import { Container, Typography, TextField, Button, Box, Link } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import Header from "../components/Header";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Link,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 const LoginContainer = styled(Container)({
   marginTop: 50,
   padding: 20,
-  border: '1px solid #dee2e6',
+  border: "1px solid #dee2e6",
   borderRadius: 5,
-  backgroundColor: '#ffffff',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  backgroundColor: "#ffffff",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   maxWidth: 400,
-  margin: '50px auto',
+  margin: "50px auto",
 });
 
 const Form = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 15,
 });
 
@@ -27,37 +34,39 @@ const SubmitButton = styled(Button)({
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [id, setId] = useState('');
-  const [pw, setPw] = useState('');
+  const [id, setId] = useState("");
+  const [pw, setPw] = useState("");
 
   const handleLoginClick = async (event) => {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('email', id);
-    formData.append('password', pw);
+    formData.append("username", id);
+    formData.append("password", pw);
 
     try {
-      const response = await fetch("http://localhost:8080/login", {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
+      const response = await fetch("/login", {
+        method: "POST",
+        mode: "no-cors",
+        body: formData,
       });
       console.log(response.status);
-      if (response.ok && response.status === 302) { //로그인 성공시
+      if (response.ok && response.status === 200) {
+        //로그인 성공시
         alert("login success");
         //navigate('/');
-      } else{ //로그인 실패시
+      } else {
+        //로그인 실패시
         alert("login failed");
         //navigate('/login?error');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed. Please check your connection.');
+      console.error("Login error:", error);
+      alert("Login failed. Please check your connection.");
     }
   };
 
-/*
+  /*
     if (id === 'admin' && pw === '1111') {
       navigate('/admin');
     } else if (id === 'user' && pw === '1111') {
@@ -68,7 +77,7 @@ const LoginPage = () => {
 */
 
   const handleSignUpClick = () => {
-    navigate('/signup');
+    navigate("/signup");
   };
 
   return (
