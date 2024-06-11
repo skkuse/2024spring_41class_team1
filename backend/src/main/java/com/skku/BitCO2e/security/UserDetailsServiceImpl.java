@@ -17,14 +17,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println(email);
-        CompletableFuture<UserDTO> future = userRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        CompletableFuture<UserDTO> future = userRepository.findByUsername(username);
+        System.out.println(username);
 
         UserDTO userDTO;
         try {
             userDTO = future.get();
-            System.out.println(userDTO.getEmail());
+            System.out.println(userDTO);
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }

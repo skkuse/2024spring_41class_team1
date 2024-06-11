@@ -2,10 +2,7 @@ package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.Authentication;
-import com.skku.BitCO2e.DTO.AnalyzeRequestDTO;
-import com.skku.BitCO2e.DTO.AnalyzeResponseDTO;
-import com.skku.BitCO2e.DTO.ReviewDTO;
-import com.skku.BitCO2e.DTO.UserRegisterDTO;
+import com.skku.BitCO2e.DTO.*;
 import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
@@ -60,8 +57,8 @@ public class Controller {
     }
 
     @GetMapping("/session")
-    public UserDetailsImpl session(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userDetails;
+    public UserSessionDTO session(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new UserSessionDTO(userDetails);
     }
 
 

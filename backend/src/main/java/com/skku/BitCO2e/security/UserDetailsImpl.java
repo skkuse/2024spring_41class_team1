@@ -19,7 +19,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if("admin".equals(userDTO.getEmail()))
+        if("admin".equals(userDTO.getUsername()))
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
@@ -31,7 +31,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userDTO.getEmail();
+        return userDTO.getUsername();
     }
 
     @Override

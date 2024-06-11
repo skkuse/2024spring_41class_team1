@@ -24,7 +24,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
                 .formLogin((formLogin) -> formLogin
                         .loginProcessingUrl("/login")
-                        .usernameParameter("email")
+                        .usernameParameter("username")
                         .successHandler(authenticationSuccessHandler())
                         .permitAll()
                 )
