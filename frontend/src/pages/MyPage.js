@@ -1,30 +1,41 @@
-import React from 'react';
-import Header from '../components/Header';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableRow, Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from "react";
+import Header from "../components/Header";
+import {
+  Container,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Button,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import useAuth from "../utils/useAuth";
 
 const MyPageContainer = styled(Container)({
   marginTop: 50,
   padding: 20,
-  border: '1px solid #dee2e6',
+  border: "1px solid #dee2e6",
   borderRadius: 5,
-  backgroundColor: '#ffffff',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  backgroundColor: "#ffffff",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   maxWidth: 400,
-  margin: '50px auto',
+  margin: "50px auto",
 });
 
 const GreetingContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   marginBottom: 20,
 });
 
-const RankImage = styled('img')({
+const RankImage = styled("img")({
   marginLeft: 10,
-  width: '1em',
-  height: '1em',
+  width: "1em",
+  height: "1em",
 });
 
 const StyledTable = styled(Table)({
@@ -32,20 +43,29 @@ const StyledTable = styled(Table)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  textAlign: 'center',
-  fontSize: '1.2rem', 
+  textAlign: "center",
+  fontSize: "1.2rem",
 });
 
 const MyPage = () => {
+  const { isLoggedIn } = useAuth();
+
   const navigate = useNavigate();
-  const USER_NAME = 'USER_NAME'; // Replace with actual user name
+  const USER_NAME = "USER_NAME"; // Replace with actual user name
   const RANK = 1;
   const TOTAL_RANK = 100;
   const ACCUMULATED_BITS = 100;
   const OWNED_BITS = 40;
 
+  //인증되지 않은 경우 login으로 redirect
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
   const handleUploadClick = () => {
-    navigate('/uploadad');
+    navigate("/uploadad");
   };
 
   return (
@@ -53,9 +73,7 @@ const MyPage = () => {
       <Header />
       <MyPageContainer>
         <GreetingContainer>
-          <Typography variant="h5">
-            hello, {USER_NAME}
-          </Typography>
+          <Typography variant="h5">hello, {USER_NAME}</Typography>
           <RankImage src="/rank.png" alt="Rank" />
         </GreetingContainer>
         <TableContainer>
@@ -63,7 +81,9 @@ const MyPage = () => {
             <TableBody>
               <TableRow>
                 <StyledTableCell>ranking</StyledTableCell>
-                <StyledTableCell># {RANK} / # {TOTAL_RANK}</StyledTableCell>
+                <StyledTableCell>
+                  # {RANK} / # {TOTAL_RANK}
+                </StyledTableCell>
               </TableRow>
               <TableRow>
                 <StyledTableCell>누적 bits</StyledTableCell>
@@ -76,7 +96,12 @@ const MyPage = () => {
             </TableBody>
           </StyledTable>
         </TableContainer>
-        <Button variant="contained" color="primary" fullWidth onClick={handleUploadClick}>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={handleUploadClick}
+        >
           광고권 구매
         </Button>
       </MyPageContainer>
