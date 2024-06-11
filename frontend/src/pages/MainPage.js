@@ -1,18 +1,11 @@
-import React, { useRef, useEffect } from 'react';
-import Header from '../components/Header';
-import AdBanner from '../components/AdBanner';
-import CodeField from '../components/CodeField';
-import { Button, styled, Box } from '@mui/material';
-import { FileUpload } from '@mui/icons-material';
-import React, { useState, useRef, useEffect } from "react";
 import Header from "../components/Header";
+import AdBanner from "../components/AdBanner";
 import CodeField from "../components/CodeField";
 import { Button, styled, Box } from "@mui/material";
 import { FileUpload } from "@mui/icons-material";
+import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../utils/useAuth";
 import { useNavigate } from "react-router-dom";
-
-
 
 const Section = styled(Box)({
   minHeight: 30,
@@ -22,7 +15,7 @@ const Section = styled(Box)({
   alignItems: "center",
 });
 
-const Bulletin = styled('img')({
+const Bulletin = styled("img")({
   margin: 10,
   width: 1000,
   height: 250,
@@ -81,43 +74,43 @@ const CopyButton = styled(Button)({
   fullWidth: true,
 });
 
-
-
 const MainPage = () => {
   const { isLoggedIn, userData, handleLogout } = useAuth();
 
   const inputRef = useRef(null);
   const resultRef = useRef(null);
-  const AdRef = [ useRef(null), useRef(null) ];
+  const AdRef = [useRef(null), useRef(null)];
 
   var AdUrls = [];
 
   const defaultPageSet = () => {
     AdUrls = ["/logo.png"];
     AdRef[0].current.initialize(AdUrls, 0);
-    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
+    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
   };
 
   const OnPageLoad = async () => {
     try {
-      const response = await fetch('http://localhost:8080/advertisement?status=approved', {
-        method: 'GET',
-      });
+      const response = await fetch(
+        "http://localhost:8080/advertisement?status=approved",
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
 
       response.json().forEach((i) => {
         AdUrls.push(i.imageUrl);
       });
-
     } catch (error) {
       defaultPageSet();
     }
 
     AdRef[0].current.initialize(AdUrls, 0);
-    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length/2));
+    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
   };
 
   const SetEditor = (files) => {
@@ -168,8 +161,8 @@ const MainPage = () => {
   const Convert = async () => {
     const body = inputRef.current.editor.getValue();
     try {
-      const response = await fetch('/refactoring', {
-        method: 'POST',
+      const response = await fetch("/refactoring", {
+        method: "POST",
         headers: {
           "Content-Type": "text/plain",
         },
@@ -205,9 +198,9 @@ const MainPage = () => {
   return (
     <div>
       <Header />
-        <Section>
-          <Bulletin src={"/logo.png"}></Bulletin>
-        </Section>
+      <Section>
+        <Bulletin src={"/logo.png"}></Bulletin>
+      </Section>
 
       <Section>
         <AdBanner ref={AdRef[0]}>Ad_1</AdBanner>
@@ -258,7 +251,7 @@ const MainPage = () => {
         {/*임시 자리 표시*/}
         {/*<ServerInfo></ServerInfo><Analysis></Analysis>*/}
       </Section>
-      
+
       {/*<Footer>*Copyright, email, info, etc. comes here.*"</Footer> ..is this needed?*/}
     </div>
   );
