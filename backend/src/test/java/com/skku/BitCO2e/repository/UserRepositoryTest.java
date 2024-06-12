@@ -104,6 +104,7 @@ class UserRepositoryTest {
         String userId = retrievedUserDto.getId();
 
         userRepository.delete(userId).join();
+//        userRepository.delete("-NyxxW4jBote4p3sgPfM").join();
     }
 
 }
