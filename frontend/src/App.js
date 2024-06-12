@@ -7,9 +7,9 @@ import AdminPage from './pages/AdminPage';
 import MyPage from './pages/MyPage';
 import UploadAdPage from './pages/UploadAdPage';
 
+
 function App() {
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -18,8 +18,8 @@ function App() {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/uploadad" element={<UploadAdPage />} />
       </Routes>
-    </Router>
   );
 }
 
 export default App;
+

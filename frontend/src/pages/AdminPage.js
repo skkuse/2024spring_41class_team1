@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useAuth } from '../contexts/AuthContext';
 
 const AdminContainer = styled(Container)({
   marginTop: 50,
@@ -21,6 +22,7 @@ const AdminPage = () => {
   const [open, setOpen] = useState(false);
   const [advertisements, setAdvertisements] = useState([]);
   const [selectedImage, setSelectedImage] = useState('');
+  const { setRole } = useAuth();
 
   const handleClickOpen = (imageUrl) => {
     setSelectedImage(imageUrl);
@@ -51,7 +53,9 @@ const AdminPage = () => {
         if(session_response.ok){
           const session_data = await session_response.json();
           //세션 정보 확인.
-          console.log(session_data.authorities[0].authority);            
+          if (session_data.authorities[0].authority === 'ROLE_ADMIN'){ //ADMIN 권한 확인 후 HEADER 형태 수정
+            setRole('ROLE_ADMIN');
+          }
         }
         else{
           throw new Error('session response error');
