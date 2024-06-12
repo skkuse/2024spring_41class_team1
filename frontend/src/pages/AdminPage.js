@@ -35,17 +35,7 @@ const AdminPage = () => {
 
 
   const OnPageLoad = async()=>{ //페이지 시작할 때 로드하는 내용
-    try{
-      const response = await fetch("/advertisements?status=applied",
-        {
-          method: "GET",
-        }
-      );
-      if (!response.ok){
-        throw new Error("Network response was not ok");
-      }
-      const adListData = await response.json();
-      setAdvertisements(adListData);
+
       try{  //세션 획득
         const session_response = await fetch("/session",{
           method: "GET",
@@ -63,13 +53,47 @@ const AdminPage = () => {
       }catch{
         console.log("session connection error");
       }
-    }catch{
-      console.log("Error fetching advertisements");
-    }
+    
   }
 
   useEffect(() => {
     OnPageLoad();
+  }, []);
+
+  const handleReview = async (adId, status) => {
+    const formData = new FormData();
+    formData.append('adId', adId);
+    formData.append('status', status);
+
+    const response = await fetch('/review', {
+      method: 'POST',
+      body: formData,
+    });
+    if (response.ok) {
+      alert("Review successful");
+      fetchAdvertisements(); // 광고 목록 새로고침
+    } else {
+      console.error("Failed to update advertisement status");
+    }
+  };
+
+  const fetchAdvertisements = async () => {
+    try {
+      const response = await fetch("/advertisements?status=applied", {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const adListData = await response.json();
+      setAdvertisements(adListData);
+    } catch (error) {
+      console.error("Error fetching advertisements", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdvertisements();
   }, []);
 
   return (
@@ -94,19 +118,19 @@ const AdminPage = () => {
               {advertisements.map(advertisement => (
                 <TableRow key={advertisement.key}>
                   <TableCell>{advertisement.message}</TableCell>
-                  <TableCell>{advertisement.username}</TableCell>
+                  <TableCell>{advertisement.userId}</TableCell>
                   <TableCell>
                     <Button variant="outlined" onClick={() => handleClickOpen(advertisement.imageUrl)}>
                       미리보기
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <Button variant="contained" color="primary">
+                    <Button variant="contained" color="primary" onClick={() => handleReview(advertisement.id, "approved")}>
                       승인
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <Button variant="contained" color="secondary">
+                    <Button variant="contained" color="secondary" onClick={() => handleReview(advertisement.id, "rejected")}>
                       거절
                     </Button>
                   </TableCell>

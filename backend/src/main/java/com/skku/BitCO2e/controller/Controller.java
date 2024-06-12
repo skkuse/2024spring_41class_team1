@@ -178,9 +178,8 @@ public class Controller {
     public ResponseEntity<String> reviewAd(@Validated ReviewDTO reviewDTO) {
 
         String status = reviewDTO.getStatus();
-
         // Validate status
-        if (!status.equals("approved") && !status.equals("rejected")) {
+        if (status == null ||(!status.equals("approved") && !status.equals("rejected"))) {
             return ResponseEntity.badRequest().body("Invalid status. Status must be either 'approved' or 'rejected'.");
         }
 

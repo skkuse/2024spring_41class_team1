@@ -140,7 +140,7 @@ const UploadAdPage = () => {
             }
           }
           alert("광고가 성공적으로 업로드되었습니다.");
-          // Perform any additional actions after successful upload
+          navigate("/mypage");
         })
         .catch((error) => {
           alert(error.message);
