@@ -95,7 +95,9 @@ public class AdvertisementService {
         List<AdvertisementDTO> advertisements;
         if (status.equals("approved")) {
             LocalDate date = LocalDate.now().minusDays(1);
-            advertisements = adRepository.findAllByStatusAndDate(status, date).join();
+            //개발 편의를 위해 임시로 비활성화
+//            advertisements = adRepository.findAllByStatusAndDate(status, date).join();
+            advertisements = adRepository.findAllByStatus(status).join();
         } else {
             advertisements = adRepository.findAllByStatus(status).join();
         }

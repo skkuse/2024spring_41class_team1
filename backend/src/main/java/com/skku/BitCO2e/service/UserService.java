@@ -1,6 +1,7 @@
 package com.skku.BitCO2e.service;
 
 import com.skku.BitCO2e.DTO.UserDTO;
+import com.skku.BitCO2e.DTO.UserInfoDTO;
 import com.skku.BitCO2e.DTO.UserRegisterDTO;
 import com.skku.BitCO2e.DTO.UserSessionDTO;
 import com.skku.BitCO2e.model.Bit;
@@ -11,9 +12,10 @@ import com.skku.BitCO2e.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 
 public class UserService {
 
@@ -61,6 +63,16 @@ public class UserService {
         }
     }
 
+    public List<UserInfoDTO> findTopUsersByBits(Integer limit) {
+        List<UserInfoDTO> userInfoDTOS = new ArrayList<>();
+        List<UserDTO> users = userRepository.findTopByBits(limit).join();
+
+        for (UserDTO userDTO : users) {
+            userInfoDTOS.add(new UserInfoDTO(userDTO));
+        }
+        return userInfoDTOS;
+    }
+
     public UserSessionDTO getUserSession(UserDetailsImpl userDetails) {
         String userId = userDetails.getUserId();
         UserDTO userDTO;
@@ -85,7 +97,6 @@ public class UserService {
             if(userDTO != null)
                 throw new IllegalStateException("Duplicated username found");
         } catch (CompletionException e) {
-            e.printStackTrace();
             throw new IllegalStateException("Error occured during checking for duplicated username",e);
         }
     }

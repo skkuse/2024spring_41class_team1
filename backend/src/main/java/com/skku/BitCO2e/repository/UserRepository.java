@@ -14,4 +14,5 @@ public interface UserRepository {
     CompletableFuture<UserDTO> update(String id, User user);
     CompletableFuture<List<UserDTO>> findAll();
     CompletableFuture<Void> delete(String id);
+    CompletableFuture<List<UserDTO>> findTopByBits(Integer limit);
 }

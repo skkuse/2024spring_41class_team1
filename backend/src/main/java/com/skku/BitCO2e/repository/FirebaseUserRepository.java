@@ -124,6 +124,37 @@ public class FirebaseUserRepository implements UserRepository {
         return future;
     }
 
+    public CompletableFuture<List<UserDTO>> findTopByBits(Integer limit) {
+        CompletableFuture<List<UserDTO>> future = new CompletableFuture<>();
+        Query query = usersRef.orderByChild("bit/total_bit").limitToLast(limit);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<UserDTO> topUsers = new ArrayList<>();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    System.out.println(userSnapshot);
+                    if (userSnapshot.exists()) {
+                        String userId = userSnapshot.getKey();
+                        User user = userSnapshot.getValue(User.class);
+                        UserDTO userDto = userToUserDTO(userId, user);
+                        topUsers.add(userDto);
+                    }
+                }
+                topUsers.sort((u1, u2) -> Long.compare(u2.getBit().getTotal_bit(), u1.getBit().getTotal_bit()));
+                future.complete(topUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(error.toException());
+            }
+        });
+
+        return future;
+    }
+
     @Override
     public CompletableFuture<List<UserDTO>> findAll(){
         CompletableFuture<List<UserDTO>> future = new CompletableFuture<>();
