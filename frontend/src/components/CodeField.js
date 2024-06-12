@@ -15,11 +15,7 @@ const CodeField = forwardRef(({theme, readOnly, placeholder} , ref) => {
       readOnly={readOnly}
       placeholder={placeholder}
       ref={ref}
-      value={`public class Main {
-  public static void main(String[] args) {
-    System.out.println("Hello, World!");
-  }
-}`}
+      value={''}
       setOptions={{
         fontSize: "12pt",
         enableBasicAutocompletion: true,
