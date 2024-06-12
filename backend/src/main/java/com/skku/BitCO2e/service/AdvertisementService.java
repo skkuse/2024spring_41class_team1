@@ -1,6 +1,7 @@
 package com.skku.BitCO2e.service;
 
 import com.google.cloud.storage.*;
+import com.google.firebase.cloud.StorageClient;
 import com.skku.BitCO2e.DTO.AdvertisementDTO;
 import com.skku.BitCO2e.DTO.AdvertisementRequestDTO;
 import com.skku.BitCO2e.DTO.ReviewDTO;
@@ -12,10 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 public class AdvertisementService {
     private final Bucket storageBucket;
@@ -64,18 +67,8 @@ public class AdvertisementService {
     }
 
     public AdvertisementDTO findAdvertisement(String adId) {
-        return adRepository.findById(adId).join();
-    }
-
-
-    public String uploadAdFile(MultipartFile file) throws IOException {
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        String storagePath = "images/" + filename;
-        try (InputStream inputStream = file.getInputStream()) {
-            storageBucket.create(storagePath, inputStream);
-        }
-
-        return storagePath;
+        AdvertisementDTO ad = adRepository.findById(adId).join();
+        return convertAdvertisementImageUrl(ad);
     }
 
     public void reviewAdvertisement(ReviewDTO reviewDTO) {
@@ -98,7 +91,7 @@ public class AdvertisementService {
         adRepository.update(adId, ad).join();
     }
 
-    public List<AdvertisementDTO> getAdvertisementsByStatus(String status) {
+    public List<AdvertisementDTO> findAdvertisementsByStatus(String status) {
         List<AdvertisementDTO> advertisements;
         if (status.equals("approved")) {
             LocalDate date = LocalDate.now().minusDays(1);
@@ -106,7 +99,39 @@ public class AdvertisementService {
         } else {
             advertisements = adRepository.findAllByStatus(status).join();
         }
-        return advertisements;
+
+        return convertAdvertisementsImageUrl(advertisements);
+    }
+
+    public String uploadAdFile(MultipartFile file) throws IOException {
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String storagePath = "images/" + filename;
+        try (InputStream inputStream = file.getInputStream()) {
+            storageBucket.create(storagePath, inputStream);
+        }
+
+        return storagePath;
+    }
+
+    public String getDownloadUrl(String storagePath) {
+        Blob blob = storageBucket.get(storagePath);
+//        return blob.getMediaLink();
+        URL signedUrl = blob.signUrl(15, TimeUnit.MINUTES);
+        return signedUrl.toString();
+    }
+
+    public AdvertisementDTO convertAdvertisementImageUrl(AdvertisementDTO ad){
+        ad.setImageUrl(getDownloadUrl(ad.getImageUrl()));
+        return ad;
+    }
+
+    public List<AdvertisementDTO> convertAdvertisementsImageUrl(List<AdvertisementDTO> ads){
+        List<AdvertisementDTO> newAds = new ArrayList<>();
+        for(AdvertisementDTO ad : ads){
+            newAds.add(convertAdvertisementImageUrl(ad));
+        }
+
+        return newAds;
     }
 
 }

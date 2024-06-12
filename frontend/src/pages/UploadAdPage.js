@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDropzone } from "react-dropzone";
-import useAuth from "../utils/useAuth";
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
 const UploadContainer = styled(Container)({
@@ -62,10 +62,8 @@ const DropzoneContainer = styled(Box)({
 
 const UploadAdPage = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, userData, handleLogout } = useAuth();
+  const { setRole } = useAuth();
 
-  const USER_NAME = "USER_NAME"; // Replace with actual user name
-  const OWNED_BITS = 40;
   const [username, setUserName] = useState(null);
   const [ownedBits, setOwnedBits] = useState(null);
   const [adName, setAdName] = useState("");
@@ -73,17 +71,30 @@ const UploadAdPage = () => {
 
   //인증되지 않은 경우 login으로 redirect
   useEffect(() => {
-    if (isLoggedIn === false) {
-      navigate("/login");
-    }
-  }, [isLoggedIn, navigate]);
+    const fetchSessionData = async () => {
+      try {
+        const response = await fetch("/session", { method: "GET" });
+        if (response.ok) {
+          const sessionData = await response.json();
+          setUserName(sessionData.username);
+          setOwnedBits(sessionData.bit.current_bit);
+          if (sessionData.authorities[0].authority === 'ROLE_USER') {
+            setRole('ROLE_USER');
+          } else {
+            navigate('/');
+          }
+        } else {
+          throw new Error('Session response error');
+        }
+      } catch (error) {
+        console.log("Session connection error", error);
+        navigate('/login');
+      }
+    };
 
-  useEffect(() => {
-    if (userData) {
-      setUserName(userData.username);
-      setOwnedBits(userData.bit.current_bit);
-    }
-  }, [userData]);
+    fetchSessionData();
+  }, [navigate, setRole]);
+
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -101,14 +112,13 @@ const UploadAdPage = () => {
       alert("광고 이름을 입력해주세요.");
     } else if (!selectedFile) {
       alert("이미지를 업로드해주세요.");
-    } else if (selectedFile.size > 20 * 1024 * 1024) {
+    } else if (selectedFile.size > 10 * 1024 * 1024) {
       alert("이미지 용량이 20MB를 초과합니다.");
     } else {
+
+
       const formData = new FormData();
-      formData.append("username", username);
-      formData.append("current_bit", OWNED_BITS);
-      formData.append("used_bit", ""); // Fill this with the appropriate value
-      formData.append("message", adName);
+      formData.append("message", username);
       formData.append("image", selectedFile);
 
       // Send POST request
@@ -119,7 +129,15 @@ const UploadAdPage = () => {
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("Failed to upload advertisement.");
+            if(response.status===405){
+              throw new Error("소유한 bit가 50bit보다 적습니다.");
+            }
+            else if(response.status===400){
+              throw new Error("Request body is missed");
+            }
+            else if(response.status===405){
+              throw new Error("Image file size is too big");
+            }
           }
           alert("광고가 성공적으로 업로드되었습니다.");
           // Perform any additional actions after successful upload
@@ -151,11 +169,11 @@ const UploadAdPage = () => {
         <InfoBox marginTop="20px">
           <Typography variant="body1">
             <b>알림</b> <br />
-            - 광고는 익일 00시부터 24시간 동안 게시되며 30bit가 차감됩니다.
+            - 광고는 익일 00시부터 24시간 동안 게시되며 50bit가 차감됩니다.
             <br />
             - 비영리적 광고만 업로드 가능합니다 <br />
             - 업로드하신 광고는 관리자 승인을 거쳐 bitCO2e 홈페이지 광고배너에
-            게시됩니다 <br />- 광고 이미지 용량은 20MB 이하여야합니다
+            게시됩니다 <br />- 광고 이미지 용량은 10MB 이하여야합니다
           </Typography>
         </InfoBox>
         <TextField

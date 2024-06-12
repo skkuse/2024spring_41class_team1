@@ -4,7 +4,7 @@ import CodeField from "../components/CodeField";
 import { Button, styled, Box } from "@mui/material";
 import { FileUpload } from "@mui/icons-material";
 import React, { useState, useRef, useEffect } from "react";
-import useAuth from "../utils/useAuth";
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
 const Section = styled(Box)({
@@ -75,11 +75,11 @@ const CopyButton = styled(Button)({
 });
 
 const MainPage = () => {
-  const { isLoggedIn, userData, handleLogout } = useAuth();
 
   const inputRef = useRef(null);
   const resultRef = useRef(null);
   const AdRef = [useRef(null), useRef(null)];
+  const { setRole } = useAuth();
 
   var AdUrls = [];
 
@@ -89,28 +89,51 @@ const MainPage = () => {
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
   };
 
-  const OnPageLoad = async () => {
+  const OnPageLoad = async () => {  //페이지 로드할 때 광고리스트 받아오기
+    try{  //세션 획득
+      const session_response = await fetch("/session",{
+        method: "GET",
+      });
+      if(session_response.ok){
+        const session_data = await session_response.json();
+        //세션 정보 확인.
+        if (session_data.authorities[0].authority === 'ROLE_ADMIN'){ //ADMIN 권한 확인 후 HEADER 형태 수정
+          setRole('ROLE_ADMIN');
+        }
+        else if(session_data.authorities[0].authority === 'ROLE_USER'){
+          setRole('ROLE_USER');
+        }
+      }
+      else{
+        throw new Error('session response error');
+      }
+    }catch{
+      console.log("session connection error");
+    }
+    
     try {
-      const response = await fetch(
-        "/advertisements?status=approved",
+      const response = await fetch("/advertisements?status=approved",
         {
           method: "GET",
         }
       );
-
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
-      response.json().forEach((i) => {
-        AdUrls.push(i.imageUrl);
+      const img_data = await response.json(); //json parsing 완료된 이후에 사용 가능. 비동기로 처리
+      img_data.forEach((i) => {
+        if (!AdUrls.includes(i.imageUrl)) { //imageUrl 중복처리
+          AdUrls.push(i.imageUrl);
+        }
       });
-    } catch (error) {
+    }
+    catch{
+      console.log("img load error"); 
       defaultPageSet();
     }
-
     AdRef[0].current.initialize(AdUrls, 0);
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
+
   };
 
   const SetEditor = (files) => {
@@ -175,7 +198,7 @@ const MainPage = () => {
 
       const data = await response.text();
       resultRef.current.editor.setValue(data);
-    } catch (error) {
+    } catch{
       alert("Refactoring에 실패하였습니다.\n잠시 후 다시 시도해주세요.");
     }
   };

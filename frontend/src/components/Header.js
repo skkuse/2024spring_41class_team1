@@ -1,13 +1,11 @@
 import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';  // Box 컴포넌트 추가
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Logo = styled('img')({
   height: 40,
-  cursor: 'pointer', // 마우스 커서 모양 변경
+  cursor: 'pointer',
 });
 
 const ToolbarContainer = styled(Toolbar)({
@@ -16,23 +14,33 @@ const ToolbarContainer = styled(Toolbar)({
 });
 
 const Header = () => {
-  const navigate = useNavigate();
+  const { userRole, logout } = useAuth();
 
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleLogoClick = () => {
-    navigate('/');
+  const handleMyPageClick = () => {
+    window.location.href = userRole === 'ROLE_ADMIN' ? '/admin' : '/mypage'; // 경로 변경에 따른 조건 처리
   };
 
   return (
     <AppBar position="static">
       <ToolbarContainer>
-        <Logo src="/logo.png" alt="Logo" onClick={handleLogoClick} />
-        <Button color="inherit" onClick={handleLoginClick}>
-          로그인/회원가입
-        </Button>
+        <Logo src="/logo.png" alt="Logo" onClick={() => window.location.href = '/'} />
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}> {/* 오른쪽 정렬을 위한 Box */}
+          {userRole === 'ROLE_USER' && (
+            <>
+              <Button color="inherit" onClick={handleMyPageClick}>마이페이지</Button>
+              <Button color="inherit" onClick={logout}>로그아웃</Button>
+            </>
+          )}
+          {userRole === 'ROLE_ADMIN' && (
+            <>
+              <Button color="inherit" onClick={handleMyPageClick}>관리자페이지</Button>
+              <Button color="inherit" onClick={logout}>로그아웃</Button>
+            </>
+          )}
+          {!userRole && (
+            <Button color="inherit" onClick={() => window.location.href = '/login'}>로그인/회원가입</Button>
+          )}
+        </Box>
       </ToolbarContainer>
     </AppBar>
   );

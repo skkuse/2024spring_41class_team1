@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import {
   Container,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../utils/useAuth";
+import { useAuth } from '../contexts/AuthContext';
 
 const MyPageContainer = styled(Container)({
   marginTop: 50,
@@ -34,8 +34,8 @@ const GreetingContainer = styled(Box)({
 
 const RankImage = styled("img")({
   marginLeft: 10,
-  width: "1em",
-  height: "1em",
+  width: "50px",
+  height: "50px",
 });
 
 const StyledTable = styled(Table)({
@@ -48,24 +48,52 @@ const StyledTableCell = styled(TableCell)({
 });
 
 const MyPage = () => {
-  const { isLoggedIn } = useAuth();
-
   const navigate = useNavigate();
-  const USER_NAME = "USER_NAME"; // Replace with actual user name
-  const RANK = 1;
-  const TOTAL_RANK = 100;
-  const ACCUMULATED_BITS = 100;
-  const OWNED_BITS = 40;
+  const { setRole } = useAuth();
+  const [userName, setUserName] = useState("");
+  const [totalBits, setTotalBits] = useState(0);
+  const [ownedBits, setOwnedBits] = useState(0);
+  const [rankImagePath, setRankImagePath] = useState("");
 
-  //인증되지 않은 경우 login으로 redirect
   useEffect(() => {
-    if (isLoggedIn === false) {
-      navigate("/login");
-    }
-  }, [isLoggedIn, navigate]);
+    const fetchSessionData = async () => {
+      try {
+        const response = await fetch("/session", { method: "GET" });
+        if (response.ok) {
+          const sessionData = await response.json();
+          setUserName(sessionData.username);
+          setTotalBits(sessionData.bit.total_bit);
+          setOwnedBits(sessionData.bit.current_bit);
+          updateRankImage(sessionData.bit.total_bit);
+          if (sessionData.authorities[0].authority === 'ROLE_USER') {
+            setRole('ROLE_USER');
+          } else {
+            navigate('/');
+          }
+        } else {
+          throw new Error('Session response error');
+        }
+      } catch (error) {
+        console.log("Session connection error", error);
+        navigate('/login');
+      }
+    };
 
-  const handleUploadClick = () => {
-    navigate("/uploadad");
+    fetchSessionData();
+  }, [navigate, setRole]);
+
+  const updateRankImage = (totalBits) => {
+    if (totalBits >= 801) {
+      setRankImagePath("/5.jpg");
+    } else if (totalBits >= 601) {
+      setRankImagePath("/4.jpg");
+    } else if (totalBits >= 401) {
+      setRankImagePath("/3.jpg");
+    } else if (totalBits >= 201) {
+      setRankImagePath("/2.jpg");
+    } else {
+      setRankImagePath("/5.jpg");
+    }
   };
 
   return (
@@ -73,8 +101,8 @@ const MyPage = () => {
       <Header />
       <MyPageContainer>
         <GreetingContainer>
-          <Typography variant="h5">hello, {USER_NAME}</Typography>
-          <RankImage src="/rank.png" alt="Rank" />
+          <Typography variant="h5">hello, {userName}</Typography>
+          <RankImage src={rankImagePath} alt="Rank" />
         </GreetingContainer>
         <TableContainer>
           <StyledTable>
@@ -82,16 +110,16 @@ const MyPage = () => {
               <TableRow>
                 <StyledTableCell>ranking</StyledTableCell>
                 <StyledTableCell>
-                  # {RANK} / # {TOTAL_RANK}
+                  #1 / #100 {/* Example values */}
                 </StyledTableCell>
               </TableRow>
               <TableRow>
                 <StyledTableCell>누적 bits</StyledTableCell>
-                <StyledTableCell>{ACCUMULATED_BITS} bits</StyledTableCell>
+                <StyledTableCell>{totalBits} bits</StyledTableCell>
               </TableRow>
               <TableRow>
                 <StyledTableCell>소유 bits</StyledTableCell>
-                <StyledTableCell>{OWNED_BITS} bits</StyledTableCell>
+                <StyledTableCell>{ownedBits} bits</StyledTableCell>
               </TableRow>
             </TableBody>
           </StyledTable>
@@ -100,7 +128,7 @@ const MyPage = () => {
           variant="contained"
           color="primary"
           fullWidth
-          onClick={handleUploadClick}
+          onClick={() => navigate("/uploadad")}
         >
           광고권 구매
         </Button>
