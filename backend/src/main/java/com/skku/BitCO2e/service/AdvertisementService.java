@@ -1,11 +1,9 @@
 package com.skku.BitCO2e.service;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
-import com.google.firebase.cloud.StorageClient;
-import com.google.firebase.database.*;
 import com.skku.BitCO2e.DTO.AdvertisementDTO;
 import com.skku.BitCO2e.DTO.AdvertisementRequestDTO;
+import com.skku.BitCO2e.DTO.ReviewDTO;
 import com.skku.BitCO2e.DTO.UserDTO;
 import com.skku.BitCO2e.exceptions.InsufficientBitsException;
 import com.skku.BitCO2e.model.Advertisement;
@@ -15,35 +13,33 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CountDownLatch;
 
 public class AdvertisementService {
     private final Bucket storageBucket;
     private final AdvertisementRepository adRepository;
     private final UserService userService;
+    private final BitService bitService;
 
-    public AdvertisementService(Bucket storageBucket, AdvertisementRepository advertisementRepository, UserService userService) {
+    public AdvertisementService(Bucket storageBucket, AdvertisementRepository advertisementRepository, UserService userService, BitService bitService) {
         this.storageBucket = storageBucket;
         this.adRepository = advertisementRepository;
         this.userService = userService;
+        this.bitService = bitService;
     }
 
     public void createAdvertisement(String userId, AdvertisementRequestDTO adRequestDTO) {
         UserDTO user = userService.findUser(userId);
-        Long usedBit = 30L;
+        long usedBit = 50L;
 
         if (user.getBit().getCurrent_bit() < usedBit) {
             throw new InsufficientBitsException("User does not have enough bits");
         }
 
         String message = adRequestDTO.getMessage();
-        String imageUrl = null;
+        String imageUrl;
         try {
             imageUrl = uploadAdFile(adRequestDTO.getImg());
         } catch (IOException e) {
@@ -67,9 +63,13 @@ public class AdvertisementService {
         adRepository.addAdvertisement(ad).join();
     }
 
+    public AdvertisementDTO findAdvertisement(String adId) {
+        return adRepository.findById(adId).join();
+    }
+
 
     public String uploadAdFile(MultipartFile file) throws IOException {
-        String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         String storagePath = "images/" + filename;
         try (InputStream inputStream = file.getInputStream()) {
             storageBucket.create(storagePath, inputStream);
@@ -78,24 +78,34 @@ public class AdvertisementService {
         return storagePath;
     }
 
-    public boolean updateAdvertisement(String adId, String status) {
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements").child(adId);
-
-        if (adRef.getKey() == null) {
-            return false; // Advertisement not found
-        }
+    public void reviewAdvertisement(ReviewDTO reviewDTO) {
+        String adId = reviewDTO.getAdId();
+        AdvertisementDTO ad = findAdvertisement(adId);
+        ad.setStatus(reviewDTO.getStatus());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = LocalDateTime.now().format(formatter);
+        ad.setDate(formattedDate);
 
-        adRef.child("status").setValueAsync(status);
-        adRef.child("date").setValueAsync(formattedDate);
+        if(reviewDTO.getStatus().equals("approved")){
+            bitService.subtractBits(ad.getUserId(), ad.getUsedBit());
+        }
 
-        return true;
+        updateAdvertisement(adId, new Advertisement(ad));
+    }
+
+    public void updateAdvertisement(String adId, Advertisement ad) {
+        adRepository.update(adId, ad).join();
     }
 
     public List<AdvertisementDTO> getAdvertisementsByStatus(String status) {
-        List<AdvertisementDTO> advertisements = adRepository.findAllByStatus(status).join();
+        List<AdvertisementDTO> advertisements;
+        if (status.equals("approved")) {
+            LocalDate date = LocalDate.now().minusDays(1);
+            advertisements = adRepository.findAllByStatusAndDate(status, date).join();
+        } else {
+            advertisements = adRepository.findAllByStatus(status).join();
+        }
         return advertisements;
     }
 
