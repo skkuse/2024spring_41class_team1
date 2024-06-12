@@ -73,6 +73,7 @@ const AdminPage = () => {
       alert("Review successful");
       fetchAdvertisements(); // 광고 목록 새로고침
     } else {
+      alert("Review failed. User doesn't have enough bits.");
       console.error("Failed to update advertisement status");
     }
   };

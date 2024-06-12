@@ -7,6 +7,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
+
 const Section = styled(Box)({
   minHeight: 30,
   padding: 20,
@@ -88,25 +89,25 @@ const MainPage = () => {
   };
 
   const OnPageLoad = async () => {  //페이지 로드할 때 광고리스트 받아오기
-    try{  //세션 획득
-      const session_response = await fetch("/session",{
+    try {  //세션 획득
+      const session_response = await fetch("/session", {
         method: "GET",
       });
-      if(session_response.ok){
+      if (session_response.ok) {
         const session_data = await session_response.json();
         //세션 정보 확인.
-        if (session_data.authorities[0].authority === 'ROLE_ADMIN'){ //ADMIN 권한 확인 후 HEADER 형태 수정
+        if (session_data.authorities[0].authority === 'ROLE_ADMIN') { //ADMIN 권한 확인 후 HEADER 형태 수정
           setRole('ROLE_ADMIN');
         }
-        else if(session_data.authorities[0].authority === 'ROLE_USER'){
+        else if (session_data.authorities[0].authority === 'ROLE_USER') {
           setRole('ROLE_USER');
         }
       }
-      else{
+      else {
         //throw new Error('session response error');
         console.log("there's no session");
       }
-    }catch{
+    } catch {
       console.log("session connection error");
     }
   };
@@ -157,124 +158,163 @@ const MainPage = () => {
   };
 
   const Convert = async () => {
-    const body = inputRef.current.editor.getValue();
+    const codeContent = inputRef.current.editor.getValue();
     try {
       const response = await fetch("/refactoring", {
         method: "POST",
         headers: {
           "Content-Type": "text/plain",
         },
-        body: body,
+        body: codeContent,
       });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
-      const data = await response.text();
-      resultRef.current.editor.setValue(data);
-    } catch{
-      alert("Refactoring에 실패하였습니다.\n잠시 후 다시 시도해주세요.");
-    }
-  };
+      const responseData = await response.json(); // JSON 형식으로 response 파싱
+      if (responseData.code) { // code 키 확인
+        resultRef.current.editor.setValue(responseData.code); // 결과 필드에 코드 출력
 
-  const CopyToClipboard = (text) => {
-    navigator.clipboard
-      .writeText(resultRef.current.editor.getValue())
-      .then(() => {
-        alert("클립보드에 성공적으로 복사하였습니다.");
-      })
-      .catch((error) => {
-        alert("클립보드 복사에 실패하였습니다. 잠시 후 다시 시도해주세요.");
-      });
-  };
+        try {  //세션 획득
+          const session_response = await fetch("/session", {
+            method: "GET",
+          });
+          if (session_response.ok) {
+            const session_data = await session_response.json();
+            //세션 정보 확인.
+            if (session_response.ok && session_data.id) {
+              if (session_data.id) {
+                // 세션 ID로 /bit 요청
+                const bitResponse = await fetch("/bit", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "text/plain",
+                  },
+                  body: session_data.id,
+                });
 
-  useEffect(() => {
-    OnPageLoad();
-  }, []); //페이지 로드시 일회성으로 실행되는 코드. 세션 확인
+                if (!bitResponse.ok) {
+                  alert("fail to get bits");
+                }
+                alert("get 10 bits");
+              }
+            }
+            else {
+              //throw new Error('session response error');
+              console.log("there's no session");
+            }
+          }
+          } catch {
+            console.log("session connection error");
+          }
 
-  useEffect(() => {   //광고 받아오기
-    const fetchAds = async () => {
-      try {
-        const response = await fetch("/advertisements?status=approved", {
-          method: "GET",
-        });
-        if (!response.ok) throw new Error("Network response was not ok");
-        const img_data = await response.json();
-        const urls = img_data.filter((i) => !AdUrls.includes(i.imageUrl)).map(i => i.imageUrl);
-        setAdUrls(urls);
-        //console.log(urls);
 
-        AdRef[0].current.initialize(urls, 0);
-        AdRef[1].current.initialize(urls, parseInt(urls.length / 2));
-      } catch (error) {
-        console.log("img load error");
-        defaultPageSet();
+        } else {
+          throw new Error("Invalid data structure from server response");
+        }
+      } catch {
+        alert("Refactoring에 실패하였습니다.\n잠시 후 다시 시도해주세요.");
       }
     };
-    fetchAds();
-  }, []);
 
-  return (
-    <div>
-      <Header />
-      <Section>
-        <Bulletin src={"/logo.png"}></Bulletin>
-      </Section>
+    const CopyToClipboard = (text) => {
+      navigator.clipboard
+        .writeText(resultRef.current.editor.getValue())
+        .then(() => {
+          alert("클립보드에 성공적으로 복사하였습니다.");
+        })
+        .catch((error) => {
+          alert("클립보드 복사에 실패하였습니다. 잠시 후 다시 시도해주세요.");
+        });
+    };
 
-      <Section>
-        <AdBanner ref={AdRef[0]}>Ad_1</AdBanner>
-        <Container>
-          <RefactoringArea>
-            <DropBox onDrop={FileDrop} onDragOver={HandleDragOver}>
-              <FileUpload fontSize="large"></FileUpload>
-              <p>Drag and drop your source code!</p>
-            </DropBox>
-            <UploadButton onClick={BrowseFile}>
-              ...or browse your file
-            </UploadButton>
-            <CodeField
-              readOnly={false}
-              theme="terminal"
-              placeholder="Input your source code here."
-              ref={inputRef}
-            ></CodeField>
-            <ConvertButton
-              variant="contained"
-              color="primary"
-              onClick={Convert}
-            >
-              Convert!
-            </ConvertButton>
-            <CodeField
-              readOnly={true}
-              theme="mono_industrial"
-              placeholder="Refactored code will be here."
-              ref={resultRef}
-            ></CodeField>
-            <CopyButton
-              variant="contained"
-              color="primary"
-              onClick={CopyToClipboard}
-            >
-              Copy to your clipboard
-            </CopyButton>
-          </RefactoringArea>
-        </Container>
-        <AdBanner ref={AdRef[1]}>Ad_2</AdBanner>
-      </Section>
+    useEffect(() => {
+      OnPageLoad();
+    }, []); //페이지 로드시 일회성으로 실행되는 코드. 세션 확인
 
-      <Section>
-        <div
-          style={{ width: 1000, height: 600, background: "lightgray" }}
-        ></div>{" "}
-        {/*임시 자리 표시*/}
-        {/*<ServerInfo></ServerInfo><Analysis></Analysis>*/}
-      </Section>
+    useEffect(() => {   //광고 받아오기
+      const fetchAds = async () => {
+        try {
+          const response = await fetch("/advertisements?status=approved", {
+            method: "GET",
+          });
+          if (!response.ok) throw new Error("Network response was not ok");
+          const img_data = await response.json();
+          const urls = img_data.filter((i) => !AdUrls.includes(i.imageUrl)).map(i => i.imageUrl);
+          setAdUrls(urls);
+          //console.log(urls);
 
-      {/*<Footer>*Copyright, email, info, etc. comes here.*"</Footer> ..is this needed?*/}
-    </div>
-  );
-};
+          AdRef[0].current.initialize(urls, 0);
+          AdRef[1].current.initialize(urls, parseInt(urls.length / 2));
+        } catch (error) {
+          console.log("img load error");
+          defaultPageSet();
+        }
+      };
+      fetchAds();
+    }, []);
 
-export default MainPage;
+    return (
+      <div>
+        <Header />
+        <Section>
+          <Bulletin src={"/logo.png"}></Bulletin>
+        </Section>
+
+        <Section>
+          <AdBanner ref={AdRef[0]}>Ad_1</AdBanner>
+          <Container>
+            <RefactoringArea>
+              <DropBox onDrop={FileDrop} onDragOver={HandleDragOver}>
+                <FileUpload fontSize="large"></FileUpload>
+                <p>Drag and drop your source code!</p>
+              </DropBox>
+              <UploadButton onClick={BrowseFile}>
+                ...or browse your file
+              </UploadButton>
+              <CodeField
+                readOnly={false}
+                theme="terminal"
+                placeholder="Input your source code here."
+                ref={inputRef}
+              ></CodeField>
+              <ConvertButton
+                variant="contained"
+                color="primary"
+                onClick={Convert}
+              >
+                Convert!
+              </ConvertButton>
+              <CodeField
+                readOnly={true}
+                theme="mono_industrial"
+                placeholder="Refactored code will be here."
+                ref={resultRef}
+              ></CodeField>
+              <CopyButton
+                variant="contained"
+                color="primary"
+                onClick={CopyToClipboard}
+              >
+                Copy to your clipboard
+              </CopyButton>
+            </RefactoringArea>
+          </Container>
+          <AdBanner ref={AdRef[1]}>Ad_2</AdBanner>
+        </Section>
+
+        <Section>
+          <div
+            style={{ width: 1000, height: 600, background: "lightgray" }}
+          ></div>{" "}
+          {/*임시 자리 표시*/}
+          {/*<ServerInfo></ServerInfo><Analysis></Analysis>*/}
+        </Section>
+
+        {/*<Footer>*Copyright, email, info, etc. comes here.*"</Footer> ..is this needed?*/}
+      </div>
+    );
+  };
+
+  export default MainPage;
