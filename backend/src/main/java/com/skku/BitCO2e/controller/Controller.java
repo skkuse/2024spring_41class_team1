@@ -170,7 +170,7 @@ public class Controller {
             return new ResponseEntity<>("Invalid status parameter", HttpStatus.BAD_REQUEST);
         }
 
-        List<AdvertisementDTO> advertisements = advertisementService.getAdvertisementsByStatus(status);
+        List<AdvertisementDTO> advertisements = advertisementService.findAdvertisementsByStatus(status);
         return new ResponseEntity<>(advertisements, HttpStatus.OK);
     }
 
