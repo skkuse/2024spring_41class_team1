@@ -89,28 +89,30 @@ const MainPage = () => {
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
   };
 
-  const OnPageLoad = async () => {
+  const OnPageLoad = async () => {  //페이지 로드할 때 광고리스트 받아오기
     try {
-      const response = await fetch(
-        "/advertisements?status=approved",
+      const response = await fetch("/advertisements?status=approved",
         {
           method: "GET",
         }
       );
-
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
-      response.json().forEach((i) => {
-        AdUrls.push(i.imageUrl);
+      const img_data = await response.json(); //json parsing 완료된 이후에 사용 가능. 비동기로 처리
+      img_data.forEach((i) => {
+        if (!AdUrls.includes(i.imageUrl)) { //imageUrl 중복처리
+          AdUrls.push(i.imageUrl);
+        }
       });
-    } catch (error) {
+    }
+    catch{
+      console.log("img load error"); 
       defaultPageSet();
     }
-
     AdRef[0].current.initialize(AdUrls, 0);
     AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
+
   };
 
   const SetEditor = (files) => {
@@ -175,7 +177,7 @@ const MainPage = () => {
 
       const data = await response.text();
       resultRef.current.editor.setValue(data);
-    } catch (error) {
+    } catch{
       alert("Refactoring에 실패하였습니다.\n잠시 후 다시 시도해주세요.");
     }
   };

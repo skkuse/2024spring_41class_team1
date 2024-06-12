@@ -20,8 +20,10 @@ const Title = styled(Typography)({
 const AdminPage = () => {
   const [open, setOpen] = useState(false);
   const [advertisements, setAdvertisements] = useState([]);
+  const [selectedImage, setSelectedImage] = useState('');
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (imageUrl) => {
+    setSelectedImage(imageUrl);
     setOpen(true);
   };
 
@@ -29,18 +31,41 @@ const AdminPage = () => {
     setOpen(false);
   };
 
+
+  const OnPageLoad = async()=>{ //페이지 시작할 때 로드하는 내용
+    try{
+      const response = await fetch("/advertisements?status=applied",
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok){
+        throw new Error("Network response was not ok");
+      }
+      const adListData = await response.json();
+      setAdvertisements(adListData);
+      try{  //세션 획득
+        const session_response = await fetch("/session",{
+          method: "GET",
+        });
+        if(session_response.ok){
+          const session_data = await session_response.json();
+          //세션 정보 확인.
+          console.log(session_data.authorities[0].authority);            
+        }
+        else{
+          throw new Error('session response error');
+        }
+      }catch{
+        console.log("session connection error");
+      }
+    }catch{
+      console.log("Error fetching advertisements");
+    }
+  }
+
   useEffect(() => {
-    fetch('http://localhost:8080/advertisements?status=applied', {
-        method: 'GET',
-        mode: 'no-cors',
-      })
-      .then(response => response.json())
-      .then(data => {
-        setAdvertisements(data);
-      })
-      .catch(error => {
-        console.error('Error fetching advertisements:', error);
-      });
+    OnPageLoad();
   }, []);
 
   return (
@@ -67,7 +92,7 @@ const AdminPage = () => {
                   <TableCell>{advertisement.message}</TableCell>
                   <TableCell>{advertisement.username}</TableCell>
                   <TableCell>
-                    <Button variant="outlined" onClick={handleClickOpen}>
+                    <Button variant="outlined" onClick={() => handleClickOpen(advertisement.imageUrl)}>
                       미리보기
                     </Button>
                   </TableCell>
@@ -91,7 +116,7 @@ const AdminPage = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>광고 이미지 미리보기</DialogTitle>
         <DialogContent>
-          <img src="/ad_test.png" alt="광고 이미지 미리보기" style={{ width: '100%' }} />
+          <img src={selectedImage} alt="광고 이미지 미리보기" style={{ width: '100%' }} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
