@@ -5,6 +5,15 @@ import com.skku.BitCO2e.DTO.*;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
+import com.skku.BitCO2e.patterns.Pattern4;
+import com.skku.BitCO2e.patterns.Pattern5;
+import com.skku.BitCO2e.patterns.Pattern6;
+import com.skku.BitCO2e.patterns.Pattern7;
+import com.skku.BitCO2e.patterns.Pattern8;
+import com.skku.BitCO2e.patterns.Pattern9;
+import com.skku.BitCO2e.patterns.Pattern10;
+import com.skku.BitCO2e.patterns.Pattern11;
+import com.skku.BitCO2e.patterns.Pattern12;
 import com.skku.BitCO2e.security.UserDetailsImpl;
 import com.skku.BitCO2e.service.AdvertisementService;
 import com.skku.BitCO2e.service.BitService;
@@ -31,6 +40,15 @@ public class Controller {
     private final Pattern1 pattern1;
     private final Pattern2 pattern2;
     private final Pattern3 pattern3;
+    private final Pattern4 pattern4;
+    private final Pattern5 pattern5;
+    private final Pattern6 pattern6;
+    private final Pattern7 pattern7;
+    private final Pattern8 pattern8;
+    private final Pattern9 pattern9;
+    private final Pattern10 pattern10;
+    private final Pattern11 pattern11;
+    private final Pattern12 pattern12;
 
     @Autowired
     public Controller(UserService userService, AdvertisementService advertisementService, BitService bitService, CodeInputService codeInputService) {
@@ -42,6 +60,16 @@ public class Controller {
         this.pattern1 = new Pattern1();
         this.pattern2 = new Pattern2();
         this.pattern3 = new Pattern3();
+        this.pattern4 = new Pattern4();
+        this.pattern5 = new Pattern5();
+        this.pattern6 = new Pattern6();
+        this.pattern7 = new Pattern7();
+        this.pattern8 = new Pattern8();
+        this.pattern9 = new Pattern9();
+        this.pattern10 = new Pattern10();
+        this.pattern11 = new Pattern11();
+        this.pattern12 = new Pattern12();
+
     }
 
     @PostMapping("/signup")
@@ -67,11 +95,48 @@ public class Controller {
         String refactor3 = pattern3.main(refactor2);
         boolean isPattern3 = !refactor2.equals(refactor3);
 
+        String refactor4 = pattern4.main(refactor3);
+        boolean isPattern4 = !refactor3.equals(refactor4);
+
+        String refactor5 = pattern5.main(refactor4);
+        boolean isPattern5 = !refactor4.equals(refactor5);
+
+        String refactor6 = pattern6.main(refactor5);
+        boolean isPattern6 = !refactor5.equals(refactor6);
+
+        String refactor7 = pattern7.main(refactor6);
+        boolean isPattern7 = !refactor6.equals(refactor7);
+
+        String refactor8 = pattern8.main(refactor7);
+        boolean isPattern8 = !refactor7.equals(refactor8);
+
+        String refactor9 = pattern9.main(refactor8);
+        boolean isPattern9 = !refactor8.equals(refactor9);
+
+        String refactor10 = pattern10.main(refactor9);
+        boolean isPattern10 = !refactor9.equals(refactor10);
+
+        String refactor11 = pattern11.main(refactor10);
+        boolean isPattern11 = !refactor10.equals(refactor11);
+
+        String refactor12 = pattern12.main(refactor11);
+        boolean isPattern12 = !refactor11.equals(refactor12);
+
         Map<String, Object> response = new HashMap<>();
         response.put("isPattern1", isPattern1);
         response.put("isPattern2", isPattern2);
         response.put("isPattern3", isPattern3);
-        response.put("code", refactor3);
+        response.put("isPattern4", isPattern4);
+        response.put("isPattern5", isPattern5);
+        response.put("isPattern6", isPattern6);
+        response.put("isPattern7", isPattern7);
+        response.put("isPattern8", isPattern8);
+        response.put("isPattern9", isPattern9);
+        response.put("isPattern10", isPattern10);
+        response.put("isPattern11", isPattern11);
+        response.put("isPattern12", isPattern12);
+
+        response.put("code", refactor12);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
