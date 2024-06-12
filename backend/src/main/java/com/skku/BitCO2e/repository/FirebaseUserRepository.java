@@ -11,11 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FirebaseUserRepository implements UserRepository {
-    private DatabaseReference usersRef;
-
-    public FirebaseUserRepository() {
-        this.usersRef = FirebaseDatabase.getInstance().getReference("users");
-    }
+    private final DatabaseReference usersRef;
 
     public FirebaseUserRepository(DatabaseReference usersRef) {
         this.usersRef = usersRef;
@@ -27,15 +23,12 @@ public class FirebaseUserRepository implements UserRepository {
 
         String userId = usersRef.push().getKey();
 
-        usersRef.child(userId).setValue(user, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (databaseError != null) {
-                    future.completeExceptionally(databaseError.toException());
-                } else {
-                    UserDTO userDTO = userToUserDTO(userId, user);
-                    future.complete(userDTO);
-                }
+        usersRef.child(userId).setValue(user, (databaseError, databaseReference) -> {
+            if (databaseError != null) {
+                future.completeExceptionally(databaseError.toException());
+            } else {
+                UserDTO userDTO = userToUserDTO(userId, user);
+                future.complete(userDTO);
             }
         });
         return future;
@@ -49,10 +42,14 @@ public class FirebaseUserRepository implements UserRepository {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String userId = dataSnapshot.getKey();
-                User user = dataSnapshot.getValue(User.class);
-                UserDTO userDto = userToUserDTO(userId, user);
-                future.complete(userDto);
+                if (dataSnapshot.exists()) {
+                    String userId = dataSnapshot.getKey();
+                    User user = dataSnapshot.getValue(User.class);
+                    UserDTO userDto = userToUserDTO(userId, user);
+                    future.complete(userDto);
+                } else{
+                    future.completeExceptionally(new RuntimeException("No user found"));
+                }
             }
 
             @Override
@@ -158,20 +155,19 @@ public class FirebaseUserRepository implements UserRepository {
     public CompletableFuture<UserDTO> update(String userId, User user) {
         CompletableFuture<UserDTO> future = new CompletableFuture<>();
 
-        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference userRef = usersRef.child(userId);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     // 사용자가 존재하는 경우에만 업데이트 수행
-                    usersRef.child(userId).setValue(user, new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                            if (databaseError != null) {
-                                future.completeExceptionally(databaseError.toException());
-                            } else {
-                                UserDTO userDTO = userToUserDTO(userId, user);
-                                future.complete(userDTO);
-                            }
+                    userRef.setValue(user, (databaseError, databaseReference) -> {
+                        if (databaseError != null) {
+                            future.completeExceptionally(databaseError.toException());
+                        } else {
+                            UserDTO userDTO = userToUserDTO(userId, user);
+                            future.complete(userDTO);
                         }
                     });
                 } else {
@@ -192,14 +188,11 @@ public class FirebaseUserRepository implements UserRepository {
     public CompletableFuture<Void> delete(String id) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        usersRef.child(id).removeValue(new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (databaseError != null) {
-                    future.completeExceptionally(databaseError.toException());
-                } else {
-                    future.complete(null);
-                }
+        usersRef.child(id).removeValue((databaseError, databaseReference) -> {
+            if (databaseError != null) {
+                future.completeExceptionally(databaseError.toException());
+            } else {
+                future.complete(null);
             }
         });
 

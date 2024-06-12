@@ -1,98 +1,37 @@
 package com.skku.BitCO2e.service;
 
-import com.google.firebase.database.*;
+import com.skku.BitCO2e.DTO.UserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BitService {
+    private final UserService userService;
 
-    public void addBits(String userId, long bitsToAdd) {
-        DatabaseReference bitRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("bit");
-
-        bitRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Long currentBit = dataSnapshot.child("current_bit").getValue(Long.class);
-                    Long totalBit = dataSnapshot.child("total_bit").getValue(Long.class);
-
-                    if (currentBit != null && totalBit != null) {
-                        currentBit += bitsToAdd;
-                        totalBit += bitsToAdd;
-
-                        bitRef.child("current_bit").setValueAsync(currentBit);
-                        bitRef.child("total_bit").setValueAsync(totalBit);
-
-                        System.out.println("Updated Current Bit: " + currentBit);
-                        System.out.println("Updated Total Bit: " + totalBit);
-                    } else {
-                        System.out.println("Either current_bit or total_bit does not exist.");
-                    }
-                } else {
-                    System.out.println("bit data does not exist.");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.err.println("Error: " + databaseError.getMessage());
-            }
-        });
+    @Autowired
+    public BitService(UserService userService) {
+        this.userService = userService;
     }
 
-    public void subtractBits(String adId, long bitsToSubtract) {
-        DatabaseReference adRef = FirebaseDatabase.getInstance().getReference("advertisements").child(adId);
+    public void addBits(String userId, long bitsToAdd) {
+        UserDTO user = userService.findUser(userId);
+        long currentBit = user.getBit().getCurrent_bit();
 
-        adRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot adSnapshot) {
-                if (adSnapshot.exists()) {
-                    String userId = adSnapshot.child("userId").getValue(String.class);
+        user.getBit().setCurrent_bit(currentBit + bitsToAdd);
+        userService.updateUser(user);
+    }
 
-                    if (userId != null) {
-                        try {
-                            DatabaseReference currentBitRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("bit").child("current_bit");
+    public void subtractBits(String userId, long bitsToSubtract) {
+        UserDTO user = userService.findUser(userId);
+        long currentBit = user.getBit().getCurrent_bit();
 
-                            currentBitRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.exists()) {
-                                        Long currentBit = dataSnapshot.getValue(Long.class);
-                                        if (currentBit != null) {
-                                            if (currentBit >= bitsToSubtract) {
-                                                currentBit -= bitsToSubtract;
-                                                currentBitRef.setValueAsync(currentBit);
-                                                System.out.println("Updated Current Bit: " + currentBit);
-                                            } else {
-                                                System.out.println("Not enough bits to subtract.");
-                                            }
-                                        }
-                                    } else {
-                                        System.out.println("current_bit does not exist.");
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                    System.err.println("Error: " + databaseError.getMessage());
-                                }
-                            });
-                        } catch (NumberFormatException e) {
-                            System.err.println("Error: usedBit is not a valid number.");
-                        }
-                    } else {
-                        System.out.println("userId or usedBit is missing in the advertisement.");
-                    }
-                } else {
-                    System.out.println("Advertisement does not exist.");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.err.println("Error: " + databaseError.getMessage());
-            }
-        });
+        if (currentBit > bitsToSubtract) {
+            currentBit -= bitsToSubtract;
+            user.getBit().setCurrent_bit(currentBit);
+            userService.updateUser(user);
+        } else {
+            throw new RuntimeException("Attempted to subtract more bits than available bits.");
+        }
     }
 
 }

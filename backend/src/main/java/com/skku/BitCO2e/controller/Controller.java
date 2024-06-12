@@ -2,7 +2,6 @@ package com.skku.BitCO2e.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skku.BitCO2e.DTO.*;
-import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.patterns.Pattern1;
 import com.skku.BitCO2e.patterns.Pattern2;
 import com.skku.BitCO2e.patterns.Pattern3;
@@ -18,7 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,37 +110,17 @@ public class Controller {
     }
 
     @PostMapping("/review")
-    public ResponseEntity<String> reviewAd(
-            @RequestParam(required = false) String adId,
-            @RequestBody ReviewDTO reviewRequest) {
+    public ResponseEntity<String> reviewAd(@Validated ReviewDTO reviewDTO) {
 
-        String status = reviewRequest.getStatus();
-
-        // Check if adId is missing
-        if (adId == null || adId.isEmpty()) {
-            return ResponseEntity.badRequest().body("Missing required query parameter 'adId'.");
-        }
+        String status = reviewDTO.getStatus();
 
         // Validate status
         if (!status.equals("approved") && !status.equals("rejected")) {
             return ResponseEntity.badRequest().body("Invalid status. Status must be either 'approved' or 'rejected'.");
         }
 
-        try {
-            // Update advertisement status
-            boolean updated = advertisementService.updateAdvertisement(adId, status);
-            if (updated) {
-                if (status.equals("approved")) {
-                    bitService.subtractBits(adId, 50);
-                }
-                return ResponseEntity.ok("Application reviewed successfully");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Application not found");
-            }
-        } catch (Exception e) {
-            // Handle internal server error (500)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
-        }
+        advertisementService.reviewAdvertisement(reviewDTO);
+        return ResponseEntity.ok("Review advertisement successfully.");
     }
 
     @PostMapping("/compare")
@@ -154,8 +132,7 @@ public class Controller {
             }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            AnalyzeResponseDTO errorResponse = new AnalyzeResponseDTO((double) -1, (double) -1, (int) -1, (double) -1, (double) -1);
+            AnalyzeResponseDTO errorResponse = new AnalyzeResponseDTO((double) -1, (double) -1, -1, (double) -1, (double) -1);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
