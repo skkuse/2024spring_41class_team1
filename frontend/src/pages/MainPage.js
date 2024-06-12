@@ -75,18 +75,16 @@ const CopyButton = styled(Button)({
 });
 
 const MainPage = () => {
-
+  const [AdUrls, setAdUrls] = useState([]);
   const inputRef = useRef(null);
   const resultRef = useRef(null);
   const AdRef = [useRef(null), useRef(null)];
   const { setRole } = useAuth();
 
-  var AdUrls = [];
-
   const defaultPageSet = () => {
-    AdUrls = ["/logo.png"];
-    AdRef[0].current.initialize(AdUrls, 0);
-    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
+    const defaultAds = ["/logo.png"];
+    AdRef[0].current.initialize(defaultAds, 0);
+    AdRef[1].current.initialize(defaultAds, parseInt(defaultAds.length / 2));
   };
 
   const OnPageLoad = async () => {  //페이지 로드할 때 광고리스트 받아오기
@@ -105,35 +103,12 @@ const MainPage = () => {
         }
       }
       else{
-        throw new Error('session response error');
+        //throw new Error('session response error');
+        console.log("there's no session");
       }
     }catch{
       console.log("session connection error");
     }
-    
-    try {
-      const response = await fetch("/advertisements?status=approved",
-        {
-          method: "GET",
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const img_data = await response.json(); //json parsing 완료된 이후에 사용 가능. 비동기로 처리
-      img_data.forEach((i) => {
-        if (!AdUrls.includes(i.imageUrl)) { //imageUrl 중복처리
-          AdUrls.push(i.imageUrl);
-        }
-      });
-    }
-    catch{
-      console.log("img load error"); 
-      defaultPageSet();
-    }
-    AdRef[0].current.initialize(AdUrls, 0);
-    AdRef[1].current.initialize(AdUrls, parseInt(AdUrls.length / 2));
-
   };
 
   const SetEditor = (files) => {
@@ -216,7 +191,29 @@ const MainPage = () => {
 
   useEffect(() => {
     OnPageLoad();
-  }, []); //페이지 로드시 일회성으로 실행되는 코드: 광고 정보 등 페이지 구성
+  }, []); //페이지 로드시 일회성으로 실행되는 코드. 세션 확인
+
+  useEffect(() => {   //광고 받아오기
+    const fetchAds = async () => {
+      try {
+        const response = await fetch("/advertisements?status=approved", {
+          method: "GET",
+        });
+        if (!response.ok) throw new Error("Network response was not ok");
+        const img_data = await response.json();
+        const urls = img_data.filter((i) => !AdUrls.includes(i.imageUrl)).map(i => i.imageUrl);
+        setAdUrls(urls);
+        //console.log(urls);
+
+        AdRef[0].current.initialize(urls, 0);
+        AdRef[1].current.initialize(urls, parseInt(urls.length / 2));
+      } catch (error) {
+        console.log("img load error");
+        defaultPageSet();
+      }
+    };
+    fetchAds();
+  }, []);
 
   return (
     <div>
