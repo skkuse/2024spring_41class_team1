@@ -54,7 +54,30 @@ const LoginPage = () => {
       if (response.ok && response.status === 200) {
         //로그인 성공시
         alert("login success");
-        navigate('/');
+
+        try{  //세션 획득
+          const session_response = await fetch("/session",{
+            method: "GET",
+          });
+          if(session_response.ok){
+            const session_data = await session_response.json();
+            //세션 정보 확인. user, admin 구분
+            const isAdmin = session_data.authorities[0].authority;
+            if(isAdmin === "ROLE_ADMIN"){ //로그인한 사용자가 admin인 경우
+              navigate("/admin");
+            }
+            else{ //로그인한 사용자가 일반 유저인 경우
+              console.log("this is user");
+              navigate('/');
+            }
+          }
+          else{
+            throw new Error('session response error');
+          }
+        }catch{
+          console.log("session connection error");
+        }
+        
       } else {
         //로그인 실패시
         alert("login failed");
