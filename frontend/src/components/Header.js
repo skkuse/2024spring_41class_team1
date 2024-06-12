@@ -1,13 +1,12 @@
+// src/components/Header.js
 import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
+import { AppBar, Toolbar, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Logo = styled('img')({
   height: 40,
-  cursor: 'pointer', // 마우스 커서 모양 변경
+  cursor: 'pointer',
 });
 
 const ToolbarContainer = styled(Toolbar)({
@@ -16,23 +15,28 @@ const ToolbarContainer = styled(Toolbar)({
 });
 
 const Header = () => {
-  const navigate = useNavigate();
-
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleLogoClick = () => {
-    navigate('/');
+  const { userRole, logout } = useAuth();
+  const handleMyPageClick = () => {
+    // 마이페이지로 이동
+    window.location.href = '/mypage';
   };
 
   return (
     <AppBar position="static">
       <ToolbarContainer>
-        <Logo src="/logo.png" alt="Logo" onClick={handleLogoClick} />
-        <Button color="inherit" onClick={handleLoginClick}>
-          로그인/회원가입
-        </Button>
+        <Logo src="/logo.png" alt="Logo" onClick={() => window.location.href = '/'} />
+        {userRole === 'ROLE_USER' && (
+          <>
+            <Button color="inherit" onClick={handleMyPageClick}>마이페이지</Button>
+            <Button color="inherit" onClick={logout}>로그아웃</Button>
+          </>
+        )}
+        {userRole === 'ROLE_ADMIN' && (
+          <Button color="inherit" onClick={logout}>로그아웃</Button>
+        )}
+        {!userRole && (
+          <Button color="inherit" onClick={() => window.location.href = '/login'}>로그인/회원가입</Button>
+        )}
       </ToolbarContainer>
     </AppBar>
   );
