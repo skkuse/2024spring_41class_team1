@@ -83,6 +83,11 @@ public class Controller {
         return userService.getUserSession(userDetails);
     }
 
+    @GetMapping("/users")
+    public List<UserInfoDTO> users(@RequestParam(defaultValue = "10") int limit) {
+        return userService.findTopUsersByBits(limit);
+    }
+
 
     @PostMapping("/refactoring")
     public String refactoring(@RequestBody String codeInput) {
