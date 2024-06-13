@@ -99,7 +99,7 @@ public class AdvertisementService {
             advertisements = adRepository.findAllByStatus(status).join();
         }
 
-        return enrichAdvertisementsWithUser(advertisements);
+        return enrichAdvertisementsWithUser(convertAdvertisementsImageUrl(advertisements));
     }
 
     public String uploadAdFile(MultipartFile file) throws IOException {
