@@ -12,5 +12,5 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class AdvertisementRequestDTO {
     private String message;
-    private MultipartFile img;
+    private MultipartFile image;
 }

@@ -154,7 +154,7 @@ public class Controller {
     public ResponseEntity<String> requestAd(@AuthenticationPrincipal UserDetailsImpl userDetails, @Validated AdvertisementRequestDTO advertisementRequestDTO) {
         String userId = userDetails.getUserId();
 
-        if (advertisementRequestDTO.getImg().getSize() > 10 * 1024 * 1024) {
+        if (advertisementRequestDTO.getImage().getSize() > 10 * 1024 * 1024) {
             throw new RuntimeException("Image size too large");
         }
 

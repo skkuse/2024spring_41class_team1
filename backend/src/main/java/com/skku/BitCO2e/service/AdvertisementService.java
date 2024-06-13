@@ -41,7 +41,7 @@ public class AdvertisementService {
         String message = adRequestDTO.getMessage();
         String imageUrl;
         try {
-            imageUrl = uploadAdFile(adRequestDTO.getImg());
+            imageUrl = uploadAdFile(adRequestDTO.getImage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
