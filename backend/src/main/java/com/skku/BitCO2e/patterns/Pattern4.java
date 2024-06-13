@@ -5,16 +5,20 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Pattern4 {
-    //Primitives vs Wrapper Objects
+    // Primitives vs Wrapper Objects
     public String main(String inputText) {
         boolean isDetected = false;
-        int classStartIndex = 0;
+        StringBuilder result = new StringBuilder();
 
         try {
             // 코드 분할
-            String[] codes = inputText.split("\n");
-            ArrayList<String> lines = new ArrayList<>(Arrays.asList(codes));
+            String[] lines = inputText.split("\n");
+            ArrayList<String> lineList = new ArrayList<>(Arrays.asList(lines));
 
             // Wrapper to primitive mapping
             String[][] wrapperToPrimitive = {
@@ -29,8 +33,8 @@ public class Pattern4 {
             };
 
             // 검출 및 수정
-            for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
+            for (int i = 0; i < lineList.size(); i++) {
+                String line = lineList.get(i);
 
                 for (String[] pair : wrapperToPrimitive) {
                     String wrapper = pair[0];
@@ -43,24 +47,23 @@ public class Pattern4 {
                     // 매칭되는 라인이 있으면 교체
                     if (matcher.find()) {
                         isDetected = true;
-                        lines.set(i, matcher.replaceAll(primitive));
+                        line = matcher.replaceAll(primitive);
                     }
                 }
+
+                result.append(line).append("\n");
             }
 
             // 클래스명 수정
             if (isDetected) {
-                for (int i = 0; i < lines.size(); i++) {
-                    String line = lines.get(i);
-                    if (line.contains("public class Buggy")) {
-                        classStartIndex = i;
-                        lines.set(i, line.replace("public class Buggy", "public class Fixed"));
-                        break;
-                    }
+                String modifiedCode = result.toString();
+                if (modifiedCode.contains("public class Buggy")) {
+                    modifiedCode = modifiedCode.replace("public class Buggy", "public class Fixed");
                 }
+                return modifiedCode;
             }
 
-            return String.join("\n", lines);
+            return result.toString();
 
         } catch (Exception e) {
             System.out.println(e);

@@ -118,19 +118,18 @@ const UploadAdPage = () => {
 
 
       const formData = new FormData();
-      formData.append("message", username);
+      formData.append("message", adName);
       formData.append("image", selectedFile);
 
       // Send POST request
-      fetch("/advertisements", {
+      fetch("/advertisement", {
         method: "POST",
-        mode: "no-cors",
         body: formData,
       })
         .then((response) => {
           if (!response.ok) {
             if(response.status===405){
-              throw new Error("소유한 bit가 50bit보다 적습니다.");
+              throw new Error("405 error");
             }
             else if(response.status===400){
               throw new Error("Request body is missed");

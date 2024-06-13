@@ -23,11 +23,19 @@ const CenteredTableCell = styled(TableCell)({
     margin: 'auto',
 });
 
+const ImageCell = styled(TableCell)({
+    textAlign: 'center',
+    display: 'flex',          // Flex 컨테이너를 사용
+    justifyContent: 'center', // 수평 중앙 정렬
+    alignItems: 'center',     // 수직 중앙 정렬
+});
+
 const ButtonContainer = styled(Box)({
     display: 'flex',
     justifyContent: 'center',  // 수평 중앙 정렬
     alignItems: 'center',      // 수직 중앙 정렬
     width: '100%',             // 부모 요소의 전체 너비 사용
+    paddingTop: "8px",
 });
 
 const MainBottomPage = ({ code }) => {
@@ -36,6 +44,7 @@ const MainBottomPage = ({ code }) => {
     const [patterns, setPatterns] = useState([]);
     const [open, setOpen] = useState(false);  // 대화 상자의 열림/닫힘 상태
     const [currentPattern, setCurrentPattern] = useState(null);  // 현재 선택된 패턴
+    const [compareData, setCompareData] = useState(null);
 
     const patternDescriptions = {
         Pattern1: {
@@ -90,12 +99,12 @@ public boolean conditionsMet() {
         },
         Pattern4: {
             description: "Primitives vs Wrapper Objects",
-            before:`with Wrappers:
+            before: `with Wrappers:
 Integer sum = 0;
 for (int i = 0; i < 1_000_000_000; i++) {
     sum += i;
 }`,
-            after:`with Primitives only:
+            after: `with Primitives only:
 int sum = 0;
 for (int i = 0; i < 1_000_000_000; i++)  {
     sum += i;
@@ -130,7 +139,7 @@ String fullName = firstName.concat(" ").concat(lastName);`
         },
         Pattern8: {
             description: "Scanner vs BufferedReader",
-            before:`Scanner scanner = new Scanner(System.in);
+            before: `Scanner scanner = new Scanner(System.in);
         for (int i = 0; i < iterations; i++) {
             scanner.nextLine();
         }
@@ -191,7 +200,7 @@ public class FileReadExample1 {
         }
     }
 }`,
-            after:`import java.io.IOException;
+            after: `import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -369,6 +378,33 @@ public class SortAfter {
                     .map(([key, _]) => key.replace('isPattern', 'Pattern'));
                 setPatterns(filteredPatterns);
 
+                // 나중에 수정
+                const test1 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
+                const test2 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
+                const compareResponse = await fetch('/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',  // headers 수정
+                    },
+                    body: JSON.stringify({
+                        "inputCode": test1,
+                        "outputCode": test2
+                    })
+                    /*
+                                        body: JSON.stringify({
+                                            "inputCode": code,
+                                            "outputCode": data.code 
+                                        })
+                    */
+                });
+
+                if (!compareResponse.ok) {
+                    throw new Error('Failed to fetch comparison data');
+                }
+
+                setCompareData(await compareResponse.json());
+
+
             } catch (error) {
                 console.error('Failed to fetch refactored code:', error);
                 setRefactoredCode("Error fetching refactored code.");
@@ -384,8 +420,8 @@ public class SortAfter {
 
 
     return (
-        <Section style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "1000px", height: "600px", margin: "20px auto" }}>
-            <div style={{ flex: 1, height: "600px", backgroundColor: "#E6F7FF", padding: "20px", fontSize: "16px", fontFamily: "Arial, sans-serif", alignItems: "start" }}>
+        <Section style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "1000px", minHeight: "600px", margin: "20px auto" }}>
+            <div style={{ flex: 1, minHeight: "600px", backgroundColor: "#E6F7FF", padding: "20px", fontSize: "16px", fontFamily: "Arial, sans-serif", alignItems: "start" }}>
                 <h2 style={{ textAlign: "center", fontWeight: "bold" }}>시스템 정보</h2>
                 <p style={{ fontWeight: "bold" }}>CPU</p>
                 <ul>
@@ -415,7 +451,7 @@ public class SortAfter {
                 </ul>
             </div>
             <div style={{ width: "30px", backgroundColor: "white" }}></div>
-            <div style={{ flex: 3, height: "600px", backgroundColor: "#E6F7FF", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ flex: 3, minHeight: "600px", backgroundColor: "#E6F7FF", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <h2>Analysis</h2>
                 <h3>적용된 그린알고리즘 패턴</h3>
                 <StyledTable>
@@ -430,6 +466,38 @@ public class SortAfter {
                         ))}
                     </TableBody>
                 </StyledTable>
+                <h3>탄소배출량 분석</h3>
+                {compareData && (
+                    <StyledTable aria-label="customized table">
+                        <TableBody>
+                            <TableRow>
+                                <CenteredTableCell></CenteredTableCell>
+                                <CenteredTableCell>
+                                    <ImageCell>
+                                        <img src="/analysis1.png" alt="탄소 배출량" width="100" />
+                                    </ImageCell>
+                                    <h3>탄소배출량</h3>
+                                </CenteredTableCell>
+                                <CenteredTableCell>
+                                    <ImageCell>
+                                        <img src="/analysis2.png" alt="차로 이동할 수 있는 거리" width="100" />
+                                    </ImageCell>
+                                    <h3>차로 이동할 수 있는 거리</h3>
+                                </CenteredTableCell>
+                            </TableRow>
+                            <TableRow>
+                                <CenteredTableCell>Before</CenteredTableCell>
+                                <CenteredTableCell>{compareData?.inputCarbonEmissions}</CenteredTableCell>
+                                <CenteredTableCell>{compareData?.carBefore + "km"}</CenteredTableCell>
+                            </TableRow>
+                            <TableRow>
+                                <CenteredTableCell>After</CenteredTableCell>
+                                <CenteredTableCell>{compareData?.outputCarbonEmissions}</CenteredTableCell>
+                                <CenteredTableCell>{compareData?.carAfter + "km"}</CenteredTableCell>
+                            </TableRow>
+                        </TableBody>
+                    </StyledTable>
+                )}
                 <PatternDialog
                     open={open}
                     handleClose={handleClose}

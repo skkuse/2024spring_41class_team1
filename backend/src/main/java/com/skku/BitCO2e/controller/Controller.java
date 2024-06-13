@@ -13,7 +13,6 @@ import com.skku.BitCO2e.patterns.Pattern8;
 import com.skku.BitCO2e.patterns.Pattern9;
 import com.skku.BitCO2e.patterns.Pattern10;
 import com.skku.BitCO2e.patterns.Pattern11;
-import com.skku.BitCO2e.patterns.Pattern12;
 import com.skku.BitCO2e.security.UserDetailsImpl;
 import com.skku.BitCO2e.service.AdvertisementService;
 import com.skku.BitCO2e.service.BitService;
@@ -48,7 +47,6 @@ public class Controller {
     private final Pattern9 pattern9;
     private final Pattern10 pattern10;
     private final Pattern11 pattern11;
-    private final Pattern12 pattern12;
 
     @Autowired
     public Controller(UserService userService, AdvertisementService advertisementService, BitService bitService, CodeInputService codeInputService) {
@@ -68,7 +66,6 @@ public class Controller {
         this.pattern9 = new Pattern9();
         this.pattern10 = new Pattern10();
         this.pattern11 = new Pattern11();
-        this.pattern12 = new Pattern12();
 
     }
 
@@ -124,9 +121,6 @@ public class Controller {
         String refactor11 = pattern11.main(refactor10);
         boolean isPattern11 = !refactor10.equals(refactor11);
 
-        String refactor12 = pattern12.main(refactor11);
-        boolean isPattern12 = !refactor11.equals(refactor12);
-
         Map<String, Object> response = new HashMap<>();
         response.put("isPattern1", isPattern1);
         response.put("isPattern2", isPattern2);
@@ -139,9 +133,8 @@ public class Controller {
         response.put("isPattern9", isPattern9);
         response.put("isPattern10", isPattern10);
         response.put("isPattern11", isPattern11);
-        response.put("isPattern12", isPattern12);
 
-        response.put("code", refactor12);
+        response.put("code", refactor11);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
