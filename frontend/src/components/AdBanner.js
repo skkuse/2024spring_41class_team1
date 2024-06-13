@@ -26,40 +26,39 @@ const ControlButton = styled(Button)({
 
 
 const AdBanner = forwardRef(({}, ref) => {
-  const [ adList, setList ] = useState(["/logo.png"]);
-  const [ pointer, setPointer ] = useState(0);
-  const [ imgUrl, setUrl ] = useState("/logo.png");
+  const [adList, setList] = useState(["/logo.png"]);
+  const [pointer, setPointer] = useState(0);
+  const [imgUrl, setUrl] = useState("/logo.png");
 
   const prevButtonAction = () => {
-    const newPointer = (pointer + adList.length - 1) % adList.length;
-    setPointer(newPointer);
-    setUrl(adList[newPointer]);
+    setPointer((currentPointer) => (currentPointer + adList.length - 1) % adList.length);
   }
 
   const nextButtonAction = () => {
-    const newPointer = (pointer + 1) % adList.length;
-    setPointer(newPointer);
-    setUrl(adList[newPointer]);
+    setPointer((currentPointer) => (currentPointer + 1) % adList.length);
   }
 
   const initialize = (urls, initialPointer) => {
     setList(urls);
     setPointer(initialPointer);
-    setUrl(adList[initialPointer]);
-  }
+  };
+
+  useEffect(() => {
+    setUrl(adList[pointer]);
+  }, [pointer, adList]); // adList 변경 시 imgUrl 업데이트
 
   useImperativeHandle(ref, () => ({
     initialize,
   }));
 
   useEffect(() => {
-  const interval = setInterval(() => {
-    const newPointer = (pointer + 1) % adList.length;
-    setPointer(newPointer);
-    setUrl(adList[newPointer]);
-  }, 5000);
-  return () => clearInterval(interval);
-}, [pointer, adList]);
+    const interval = setInterval(() => {
+      const newPointer = (pointer + 1) % adList.length;
+      setPointer(newPointer);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [pointer, adList]);
+
 
   return (
     <Container>

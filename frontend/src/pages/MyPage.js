@@ -51,9 +51,11 @@ const MyPage = () => {
   const navigate = useNavigate();
   const { setRole } = useAuth();
   const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
   const [totalBits, setTotalBits] = useState(0);
   const [ownedBits, setOwnedBits] = useState(0);
   const [rankImagePath, setRankImagePath] = useState("");
+  const [ranking, setRanking] = useState("");
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -62,6 +64,7 @@ const MyPage = () => {
         if (response.ok) {
           const sessionData = await response.json();
           setUserName(sessionData.username);
+          setUserId(sessionData.id);
           setTotalBits(sessionData.bit.total_bit);
           setOwnedBits(sessionData.bit.current_bit);
           updateRankImage(sessionData.bit.total_bit);
@@ -79,7 +82,25 @@ const MyPage = () => {
       }
     };
 
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/users?limit=300', { method: 'GET' });
+        if (response.ok) {
+          const users = await response.json();
+          const sortedUsers = users.sort((a, b) => b.bit.total_bit - a.bit.total_bit); // total_bit에 따라 정렬
+          const userRank = sortedUsers.findIndex(user => user.id === userId) + 1; // 현재 사용자의 순위 계산
+          const totalUsers = sortedUsers.length;
+          setRanking(`#${userRank} / #${totalUsers}`); // 순위 정보 업데이트
+        } else {
+          throw new Error('Failed to fetch user data');
+        }
+      } catch (error) {
+        console.log("Error fetching user data", error);
+      }
+    };
+
     fetchSessionData();
+    fetchUsers();
   }, [navigate, setRole]);
 
   const updateRankImage = (totalBits) => {
@@ -92,7 +113,7 @@ const MyPage = () => {
     } else if (totalBits >= 201) {
       setRankImagePath("/2.jpg");
     } else {
-      setRankImagePath("/5.jpg");
+      setRankImagePath("/1.jpg");
     }
   };
 
@@ -110,7 +131,7 @@ const MyPage = () => {
               <TableRow>
                 <StyledTableCell>ranking</StyledTableCell>
                 <StyledTableCell>
-                  #1 / #100 {/* Example values */}
+                 {ranking} {/* Example values */}
                 </StyledTableCell>
               </TableRow>
               <TableRow>
