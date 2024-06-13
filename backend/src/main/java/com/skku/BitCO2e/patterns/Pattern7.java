@@ -6,20 +6,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Pattern7 {
-    //Concat() is better than String.format()
+    // Concat() is better than String.format()
     public String main(String inputText) {
         try {
-            // 코드 분할
-            String[] codes = inputText.split("\n");
-            ArrayList<String> lines = new ArrayList<>(Arrays.asList(codes));
+            // Handle both single-line and multi-line inputs
+            String[] lines = inputText.split("\\R");
+            ArrayList<String> lineList = new ArrayList<>(Arrays.asList(lines));
             boolean isDetected = false;
 
-            // 검출 및 수정
-            for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i).trim();
+            // Pattern to detect String.format usage
+            Pattern pattern = Pattern.compile("String (\\w+) = String\\.format\\(\"([^%]*)%s([^%]*)%s([^%]*)\", (\\w+), (\\w+)\\);");
 
-                // Improved regex to match simple and short String.format usage
-                Pattern pattern = Pattern.compile("String (\\w+) = String\\.format\\(\"([^%]*)%s([^%]*)%s([^%]*)\", (\\w+), (\\w+)\\);");
+            // Detect and replace patterns
+            for (int i = 0; i < lineList.size(); i++) {
+                String line = lineList.get(i).trim();
+
                 Matcher matcher = pattern.matcher(line);
 
                 if (matcher.find()) {
@@ -30,32 +31,33 @@ public class Pattern7 {
                     String firstVar = matcher.group(5);
                     String secondVar = matcher.group(6);
 
-                    // 짧은 문자열일 때만 concat으로 바꿈
-                    if ((firstSeparator.length() + secondSeparator.length() + thirdSeparator.length()) < 5) { // Assuming 'small-scale' means less than 5 characters total
-                        // Replace with concat
+                    // Convert to concat if separators are short
+                    if ((firstSeparator.length() + secondSeparator.length() + thirdSeparator.length()) < 5) {
                         String newLine = "String " + variableName + " = " + firstVar + ".concat(\""
-                                + firstSeparator.trim() + secondSeparator.trim() + "\").concat(" + secondVar + ");";
-                        lines.set(i, newLine);
+                                + firstSeparator.trim() + secondSeparator.trim() + thirdSeparator.trim() + "\").concat(" + secondVar + ");";
+                        lineList.set(i, line.replace(matcher.group(0), newLine)); // Replace only the matched pattern
                         isDetected = true;
                     }
                 }
             }
 
-            // 클래스명 수정
-            if (isDetected) {
-                for (int i = 0; i < lines.size(); i++) {
-                    String line = lines.get(i);
-                    if (line.contains("public class Buggy")) {
-                        lines.set(i, line.replace("public class Buggy", "public class Fixed"));
-                    }
+            // Ensure the class name is updated regardless of pattern detection
+            for (int i = 0; i < lineList.size(); i++) {
+                String line = lineList.get(i).trim();
+                if (line.contains("public class Buggy")) {
+                    lineList.set(i, line.replace("public class Buggy", "public class Fixed"));
+                    isDetected = true;
+                    break;
                 }
             }
 
-            return String.join("\n", lines);
+            // Reconstruct the result with the updated lines
+            return String.join("\n", lineList);
 
         } catch (Exception e) {
             System.out.println(e);
             return e.toString();
         }
     }
+
 }

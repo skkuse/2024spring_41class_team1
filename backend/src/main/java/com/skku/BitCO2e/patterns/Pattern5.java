@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 public class Pattern5 {
     // Skipping Temporary Variable
     public String main(String inputText) {
@@ -13,7 +12,7 @@ public class Pattern5 {
 
         try {
             // Handle both single-line and multi-line inputs
-            String[] lines = inputText.split("\n");
+            String[] lines = inputText.split("\\R");
             ArrayList<String> lineList = new ArrayList<>(Arrays.asList(lines));
 
             // Pattern to detect 'int temp = ...;' followed by 'return temp;'
