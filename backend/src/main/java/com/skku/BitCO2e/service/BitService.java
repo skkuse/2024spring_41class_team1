@@ -16,8 +16,10 @@ public class BitService {
     public void addBits(String userId, long bitsToAdd) {
         UserDTO user = userService.findUser(userId);
         long currentBit = user.getBit().getCurrent_bit();
+        long totalBit = user.getBit().getTotal_bit();
 
         user.getBit().setCurrent_bit(currentBit + bitsToAdd);
+        user.getBit().setTotal_bit(totalBit + bitsToAdd);
         userService.updateUser(user);
     }
 

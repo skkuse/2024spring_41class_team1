@@ -44,13 +44,7 @@ public class UserService {
 
     public void updateUser(UserDTO userDTO) {
         String userId = userDTO.getId();
-
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setBit(new Bit(0,1));
-        user.setTree(new Tree(0,1));
+        User user = new User(userDTO);
 
         userRepository.update(userId, user).join();
     }
