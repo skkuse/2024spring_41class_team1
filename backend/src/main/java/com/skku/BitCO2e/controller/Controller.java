@@ -162,7 +162,7 @@ public class Controller {
         String userId = userDetails.getUserId();
 
         if (advertisementRequestDTO.getImg().getSize() > 10 * 1024 * 1024) {
-            return new ResponseEntity<>("Image file size exceeds the limit", HttpStatus.PAYLOAD_TOO_LARGE);
+            throw new RuntimeException("Image size too large");
         }
 
         advertisementService.createAdvertisement(userId, advertisementRequestDTO);
@@ -170,13 +170,12 @@ public class Controller {
     }
 
     @GetMapping("/advertisements")
-    public ResponseEntity<Object> getAdvertisementsByStatus(@RequestParam String status) {
+    public List<AdvertisementInfoDTO> getAdvertisementsByStatus(@RequestParam String status) {
         if (!status.equals("applied") && !status.equals("approved")) {
-            return new ResponseEntity<>("Invalid status parameter", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Status is not valid");
         }
 
-        List<AdvertisementDTO> advertisements = advertisementService.findAdvertisementsByStatus(status);
-        return new ResponseEntity<>(advertisements, HttpStatus.OK);
+        return advertisementService.findAdvertisementsByStatus(status);
     }
 
     @PostMapping("/review")
