@@ -2,10 +2,7 @@ package com.skku.BitCO2e.service;
 
 import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
-import com.skku.BitCO2e.DTO.AdvertisementDTO;
-import com.skku.BitCO2e.DTO.AdvertisementRequestDTO;
-import com.skku.BitCO2e.DTO.ReviewDTO;
-import com.skku.BitCO2e.DTO.UserDTO;
+import com.skku.BitCO2e.DTO.*;
 import com.skku.BitCO2e.exceptions.InsufficientBitsException;
 import com.skku.BitCO2e.model.Advertisement;
 import com.skku.BitCO2e.repository.AdvertisementRepository;
@@ -91,7 +88,7 @@ public class AdvertisementService {
         adRepository.update(adId, ad).join();
     }
 
-    public List<AdvertisementDTO> findAdvertisementsByStatus(String status) {
+    public List<AdvertisementInfoDTO> findAdvertisementsByStatus(String status) {
         List<AdvertisementDTO> advertisements;
         if (status.equals("approved")) {
             LocalDate date = LocalDate.now().minusDays(1);
@@ -102,7 +99,7 @@ public class AdvertisementService {
             advertisements = adRepository.findAllByStatus(status).join();
         }
 
-        return convertAdvertisementsImageUrl(advertisements);
+        return enrichAdvertisementsWithUser(advertisements);
     }
 
     public String uploadAdFile(MultipartFile file) throws IOException {
@@ -133,6 +130,22 @@ public class AdvertisementService {
             newAds.add(convertAdvertisementImageUrl(ad));
         }
 
+        return newAds;
+    }
+
+    public AdvertisementInfoDTO enrichAdvertisementWithUser(AdvertisementDTO ad){
+        AdvertisementInfoDTO adInfo = new AdvertisementInfoDTO(ad);
+        String userId = ad.getUserId();
+        UserDTO user = userService.findUser(userId);
+        adInfo.setUser(new UserInfoDTO(user));
+        return adInfo;
+    }
+
+    public List<AdvertisementInfoDTO> enrichAdvertisementsWithUser(List<AdvertisementDTO> ads){
+        List<AdvertisementInfoDTO> newAds = new ArrayList<>();
+        for(AdvertisementDTO ad : ads){
+            newAds.add(enrichAdvertisementWithUser(ad));
+        }
         return newAds;
     }
 
