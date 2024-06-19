@@ -17,7 +17,7 @@ public class Pattern7 {
             // Pattern to detect String.format usage
             Pattern pattern = Pattern.compile("String (\\w+) = String\\.format\\(\"([^%]*)%s([^%]*)%s([^%]*)\", (\\w+), (\\w+)\\);");
 
-            // Detect and replace patterns
+            // 검출 및 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
 
@@ -31,7 +31,7 @@ public class Pattern7 {
                     String firstVar = matcher.group(5);
                     String secondVar = matcher.group(6);
 
-                    // Convert to concat if separators are short
+                    // 수정
                     if ((firstSeparator.length() + secondSeparator.length() + thirdSeparator.length()) < 5) {
                         String newLine = "String " + variableName + " = " + firstVar + ".concat(\""
                                 + firstSeparator.trim() + secondSeparator.trim() + thirdSeparator.trim() + "\").concat(" + secondVar + ");";
@@ -41,7 +41,7 @@ public class Pattern7 {
                 }
             }
 
-            // Ensure the class name is updated regardless of pattern detection
+            //클래스명 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
                 if (line.contains("public class Buggy")) {
@@ -51,7 +51,6 @@ public class Pattern7 {
                 }
             }
 
-            // Reconstruct the result with the updated lines
             return String.join("\n", lineList);
 
         } catch (Exception e) {

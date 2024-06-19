@@ -2,7 +2,6 @@ package com.skku.BitCO2e.patterns;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,11 +17,11 @@ public class Pattern8 {
             boolean isDetected = false;
             String scannerVariableName = null; // Store the variable name used for Scanner
 
-            // Detect and replace patterns
+            // 검출 및 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
 
-                // Detect Scanner instantiation
+                // Scanner instantiation 검출
                 Pattern scannerPattern = Pattern.compile("Scanner\\s+(\\w+)\\s*=\\s*new\\s+Scanner\\(System.in\\);");
                 Matcher scannerMatcher = scannerPattern.matcher(line);
 
@@ -33,6 +32,7 @@ public class Pattern8 {
 
                 }
             }
+            //nextLine 을 readLine 으로 수정
             if (scannerVariableName != null) {
                 Pattern nextLinePattern = Pattern.compile(scannerVariableName + "\\.nextLine\\(\\)");
                 for (int i = 0; i < lineList.size(); i++) {
@@ -43,7 +43,7 @@ public class Pattern8 {
                 }
             }
 
-            // Ensure the class name is updated regardless of pattern detection
+            // 클래스 명 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
                 if (line.contains("public class Buggy")) {
@@ -76,14 +76,13 @@ public class Pattern8 {
                 }
             }
 
-            // Ensure import statement for BufferedReader and InputStreamReader
+            // import 추가
             if (isDetected && !inputText.contains("import java.io.BufferedReader;")) {
                 lineList.add(0, "import java.io.BufferedReader;");
                 lineList.add(1, "import java.io.InputStreamReader;");
                 lineList.add(2, "import java.io.IOException;");
             }
 
-            // Reconstruct the result with the updated lines
             return String.join("\n", lineList);
 
         } catch (Exception e) {

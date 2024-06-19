@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Pattern4 {
-    // Primitives vs Wrapper Objects
+    // Primitives vs Wrapper
     public String main(String inputText) {
         boolean isDetected = false;
         StringBuilder result = new StringBuilder();
@@ -28,7 +28,7 @@ public class Pattern4 {
                     {"Boolean", "boolean"}
             };
 
-            // Detect and replace wrappers with primitives
+            // 검출 및 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i);
 
@@ -40,7 +40,7 @@ public class Pattern4 {
                     Pattern pattern = Pattern.compile("\\b" + wrapper + "\\b");
                     Matcher matcher = pattern.matcher(line);
 
-                    // Replace if match is found
+                    // 수정
                     if (matcher.find()) {
                         isDetected = true;
                         line = matcher.replaceAll(primitive);
@@ -50,7 +50,7 @@ public class Pattern4 {
                 result.append(line).append("\n");
             }
 
-            // Change class name if any replacements were made
+            // 클래스 명 수정
             if (isDetected) {
                 String modifiedCode = result.toString();
                 if (modifiedCode.contains("public class Buggy")) {

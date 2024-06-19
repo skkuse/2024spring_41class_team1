@@ -13,7 +13,7 @@ public class Pattern10 {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
 
-            // Check for FileInputStream use which might indicate file reading block
+            // FileInputStream 검출
             if (line.contains("new FileInputStream")) {
                 // Find the start of the try block to ensure replacing within the right scope
                 int startOfTry = findStartOfTryBlock(lines, i);
@@ -42,6 +42,7 @@ public class Pattern10 {
         return newLines;
     }
 
+    //수정
     private void replaceCodeBlock(ArrayList<String> lines, int start, int end, List<String> newLines) {
         for (int i = start; i <= end; i++) {
             lines.remove(start);
@@ -49,12 +50,14 @@ public class Pattern10 {
         lines.addAll(start, newLines);
     }
 
+    //클래스명 수정
     private void replaceClassName(ArrayList<String> lines, String oldName, String newName) {
         for (int i = 0; i < lines.size(); i++) {
             lines.set(i, lines.get(i).replace(oldName, newName));
         }
     }
 
+    //try block 시작 검출
     private int findStartOfTryBlock(ArrayList<String> lines, int startIndex) {
         for (int i = startIndex; i >= 0; i--) {
             if (lines.get(i).contains("try {")) {
@@ -64,6 +67,7 @@ public class Pattern10 {
         return startIndex; // Default to startIndex if no try block found
     }
 
+    //try block 끝 검출
     private int findEndOfBufferedReaderUsage(ArrayList<String> lines, int startIndex) {
         int depth = 0;
         boolean insideTry = false;
