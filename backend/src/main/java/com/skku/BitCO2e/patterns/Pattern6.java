@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 
 public class Pattern6 {
+    //Instantiate in Constructor when using Set
     public String main(String inputText) {
         boolean isDetected = false;
         StringBuilder result = new StringBuilder();
@@ -16,10 +17,10 @@ public class Pattern6 {
             String[] lines = inputText.split("\\R");
             ArrayList<String> lineList = new ArrayList<>(Arrays.asList(lines));
 
-            // Pattern to detect Set instantiation followed by addAll with Arrays.asList
+            // Pattern to detect Set instantiation and addAll with Arrays.asList
             Pattern singleLinePattern = Pattern.compile("\\bSet<(.+)>\\s+(\\w+)\\s*=\\s*new\\s+HashSet<>\\(\\);\\s*(\\w+)\\.addAll\\(Arrays\\.asList\\((.+)\\)\\);");
 
-            // Detect and replace patterns in single line
+            // 검출 및 수정 in single line
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
 
@@ -37,7 +38,7 @@ public class Pattern6 {
                 }
             }
 
-            // Detect and replace patterns in multi-line
+            // 검출 및 수정 in multi-line
             for (int i = 0; i < lineList.size() - 1; i++) {
                 String line = lineList.get(i).trim();
                 String nextLine = lineList.get(i + 1).trim();
@@ -60,7 +61,7 @@ public class Pattern6 {
                 }
             }
 
-            // Ensure the class name is updated regardless of pattern detection
+            // 클래스 명 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
                 if (line.contains("public class Buggy")) {

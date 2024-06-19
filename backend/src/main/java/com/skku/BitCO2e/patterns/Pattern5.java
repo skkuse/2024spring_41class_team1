@@ -15,32 +15,32 @@ public class Pattern5 {
             String[] lines = inputText.split("\\R");
             ArrayList<String> lineList = new ArrayList<>(Arrays.asList(lines));
 
-            // Pattern to detect 'int temp = ...;' followed by 'return temp;'
+            // Pattern to detect 'int temp = ...;' and 'return temp;'
             Pattern singleLinePattern = Pattern.compile("\\bint temp = (.+?); return temp;");
 
-            // Detect and replace patterns
+            // 검출 및 수정
             for (int i = 0; i < lineList.size(); i++) {
                 String line = lineList.get(i).trim();
 
                 Matcher singleLineMatcher = singleLinePattern.matcher(line);
 
-                if (singleLineMatcher.find()) {
+                if (singleLineMatcher.find()) { //single line 에서는 같은 줄
                     isDetected = true;
                     String expression = singleLineMatcher.group(1).trim();
                     lineList.set(i, line.replace(singleLineMatcher.group(0), "return (" + expression + ");")); // Replace with return statement
-                } else if (i < lineList.size() - 1) {
+                } else if (i < lineList.size() - 1) { //multiline - 다음 줄에 return temp 검출
                     // Check if temp and the next line returns it
                     String nextLine = lineList.get(i + 1).trim();
                     if (line.matches("\\s*int temp = .+;") && nextLine.equals("return temp;")) {
                         isDetected = true;
                         String expression = line.substring(line.indexOf('=') + 1, line.length() - 1).trim();
-                        lineList.set(i, "return (" + expression + ");"); // Set the current line to return the expression
+                        lineList.set(i, "return (" + expression + ");"); // Set to return the expression
                         lineList.remove(i + 1); // Remove the next line (return temp;)
                     }
                 }
             }
 
-            // Change class name if necessary
+            // 클래스 명 수정
             if (isDetected) {
                 for (int i = 0; i < lineList.size(); i++) {
                     String line = lineList.get(i);

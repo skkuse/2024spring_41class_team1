@@ -33,7 +33,7 @@ public class Pattern4Test {
                 "            average += i / 1_000_000_000.0;\n" +
                 "        }\n" +
                 "    }\n" +
-                "}";
+                "}\n";
 
         String result = pattern.main(inputText);
         System.out.println("Expected Output:\n" + expectedOutput); // 예상 출력

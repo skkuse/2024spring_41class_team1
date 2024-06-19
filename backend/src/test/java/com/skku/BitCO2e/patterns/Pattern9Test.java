@@ -35,7 +35,7 @@ public class Pattern9Test {
     }
 
     @Test
-    public void testArraySumRefactoringForSmallArray() {
+    public void testArraySumRefactoringForSmallArray() { //조그만 배열은 굳이 안바꿈
         Pattern9 transformer = new Pattern9();
         String inputCode =
                 "public class Buggy {\n" +
