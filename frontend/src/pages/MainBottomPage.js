@@ -484,18 +484,17 @@ public class SortAfter {
                                     <ImageCell>
                                         <img src="/analysis2.png" alt="차로 이동할 수 있는 거리" width="100" />
                                     </ImageCell>
-                                    <h3>차로 이동할 수 있는 거리</h3>
+                                    <h3>감소된 탄소배출량으로<br/>이동할 수 있는 거리(차량)</h3>
                                 </CenteredTableCell>
                             </TableRow>
                             <TableRow>
                                 <CenteredTableCell>Before</CenteredTableCell>
                                 <CenteredTableCell>{compareData?.inputCarbonEmissions}</CenteredTableCell>
-                                <CenteredTableCell>{compareData?.carBefore + "km"}</CenteredTableCell>
+                                <CenteredTableCell rowspan="2">{(((compareData?.carBefore-compareData?.carAfter)*1000).toFixed(2))>0 ? (((compareData?.carBefore-compareData?.carAfter)*1000).toFixed(2))+' m':0 +' m'}</CenteredTableCell>
                             </TableRow>
                             <TableRow>
                                 <CenteredTableCell>After</CenteredTableCell>
                                 <CenteredTableCell>{compareData?.outputCarbonEmissions}</CenteredTableCell>
-                                <CenteredTableCell>{compareData?.carAfter + "km"}</CenteredTableCell>
                             </TableRow>
                         </TableBody>
                     </StyledTable>
