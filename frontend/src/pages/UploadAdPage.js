@@ -69,18 +69,17 @@ const UploadAdPage = () => {
   const [adName, setAdName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
 
-  //인증되지 않은 경우 login으로 redirect
   useEffect(() => {
     const fetchSessionData = async () => {
       try {
-        const response = await fetch("/session", { method: "GET" });
+        const response = await fetch("/session", { method: "GET" });  //세션 확인
         if (response.ok) {
           const sessionData = await response.json();
           setUserName(sessionData.username);
           setOwnedBits(sessionData.bit.current_bit);
-          if (sessionData.authorities[0].authority === 'ROLE_USER') {
+          if (sessionData.authorities[0].authority === 'ROLE_USER') { //회원 권한인지 확인
             setRole('ROLE_USER');
-          } else {
+          } else { //회원 아닌 경우 홈페이지로 redirect
             navigate('/');
           }
         } else {
@@ -96,7 +95,7 @@ const UploadAdPage = () => {
   }, [navigate, setRole]);
 
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({ //광고이미지 드래그앤드롭으로 upload할 수 있는 파트
     onDrop: (acceptedFiles) => {
       setSelectedFile(acceptedFiles[0]);
     },
@@ -107,22 +106,20 @@ const UploadAdPage = () => {
     setSelectedFile(file);
   };
 
-  const handleConfirmation = () => {
+  const handleConfirmation = () => {   //광고 신청 버튼 클릭 시
     if (!adName) {
       alert("광고 이름을 입력해주세요.");
     } else if (!selectedFile) {
       alert("이미지를 업로드해주세요.");
     } else if (selectedFile.size > 10 * 1024 * 1024) {
       alert("이미지 용량이 20MB를 초과합니다.");
-    } else {
-
-
+    } else {  //정상 flow
       const formData = new FormData();
       formData.append("message", adName);
       formData.append("image", selectedFile);
 
       // Send POST request
-      fetch("/advertisement", {
+      fetch("/advertisement", { //광고 name과 광고 이미지 POST request
         method: "POST",
         body: formData,
       })

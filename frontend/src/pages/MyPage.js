@@ -57,20 +57,20 @@ const MyPage = () => {
   const [rankImagePath, setRankImagePath] = useState("");
   const [ranking, setRanking] = useState("");
 
-  useEffect(() => {
+  useEffect(() => { // 마이페이지 로드 시 실행
     const fetchSessionData = async () => {
       try {
-        const response = await fetch("/session", { method: "GET" });
+        const response = await fetch("/session", { method: "GET" });  //세션 받아오기
         if (response.ok) {
-          const sessionData = await response.json();
+          const sessionData = await response.json();  //세션 데이터 기반으로 마이페이지에서 사용될 사용자 데이터 설정
           setUserName(sessionData.username);
           setUserId(sessionData.id);
           setTotalBits(sessionData.bit.total_bit);
           setOwnedBits(sessionData.bit.current_bit);
           updateRankImage(sessionData.bit.total_bit);
-          if (sessionData.authorities[0].authority === 'ROLE_USER') {
+          if (sessionData.authorities[0].authority === 'ROLE_USER') { //회원 세션인지 확인
             setRole('ROLE_USER');
-          } else {
+          } else {    //회원 세션 아닌 경우 초기 페이지로 이동
             navigate('/');
           }
         } else {
@@ -103,8 +103,8 @@ const MyPage = () => {
     fetchUsers();
   }, [navigate, setRole]);
 
-  const updateRankImage = (totalBits) => {
-    if (totalBits >= 801) {
+  const updateRankImage = (totalBits) => {    //소유중인 bit에 따라 나무 이미지 표시
+    if (totalBits >= 801) { //200 단위로 성장
       setRankImagePath("/5.jpg");
     } else if (totalBits >= 601) {
       setRankImagePath("/4.jpg");

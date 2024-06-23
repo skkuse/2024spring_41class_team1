@@ -37,7 +37,7 @@ const LoginPage = () => {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
 
-  const handleLoginClick = async (event) => {
+  const handleLoginClick = async (event) => { //로그인 시도(로그인 버튼 클릭)
     event.preventDefault();
 
     const formData = new FormData();
@@ -45,12 +45,12 @@ const LoginPage = () => {
     formData.append("password", pw);
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("/login", {  //사용자가 입력한 id,pw를 request body에 포함하여 login에 POST request
         method: "POST",
         mode: "no-cors",
         body: formData,
       });
-      console.log(response.status);
+      //console.log(response.status);
       if (response.ok && response.status === 200) {
         //로그인 성공시
         alert("login success");
@@ -89,7 +89,7 @@ const LoginPage = () => {
     }
   };
 
-  const handleSignUpClick = () => {
+  const handleSignUpClick = () => { //회원가입 버튼 클릭
     navigate("/signup");
   };
 

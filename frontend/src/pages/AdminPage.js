@@ -24,12 +24,12 @@ const AdminPage = () => {
   const [selectedImage, setSelectedImage] = useState('');
   const { setRole } = useAuth();
 
-  const handleClickOpen = (imageUrl) => {
-    setSelectedImage(imageUrl);
+  const handleClickOpen = (imageUrl) => { //광고 미리보기 버튼 클릭시
+    setSelectedImage(imageUrl); //광고 이미지 표시
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = () => { //미리보기 닫기
     setOpen(false);
   };
 
@@ -60,40 +60,40 @@ const AdminPage = () => {
     OnPageLoad();
   }, []);
 
-  const handleReview = async (adId, status) => {
+  const handleReview = async (adId, status) => { //관리자가 광고를 승인하거나 거절하는 함수
     const formData = new FormData();
-    formData.append('adId', adId);
-    formData.append('status', status);
+    formData.append('adId', adId);    //관리자가 선택한 광고id
+    formData.append('status', status);    //승인 버튼 클릭 시 "approved", 거절 버튼 클릭시 "rejected"
 
-    const response = await fetch('/review', {
+    const response = await fetch('/review', { // review request 보내기
       method: 'POST',
       body: formData,
     });
-    if (response.ok) {
+    if (response.ok) {  // review 성공
       alert("Review successful");
       fetchAdvertisements(); // 광고 목록 새로고침
-    } else {
+    } else {  //review 실패시 에러 alert
       alert("Review failed. User doesn't have enough bits.");
       console.error("Failed to update advertisement status");
     }
   };
 
-  const fetchAdvertisements = async () => {
+  const fetchAdvertisements = async () => { // 사용자들이 신청한 광고 리스트 받아오기
     try {
-      const response = await fetch("/advertisements?status=applied", {
+      const response = await fetch("/advertisements?status=applied", {  //status가 "applied"인 광고 받아오기
         method: "GET",
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      const adListData = await response.json();
+      const adListData = await response.json(); // 받아온 광고 리스트 파싱
       setAdvertisements(adListData);
     } catch (error) {
       console.error("Error fetching advertisements", error);
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { //페이지 로드 시 신청한 ad list 불러오기 
     fetchAdvertisements();
   }, []);
 
