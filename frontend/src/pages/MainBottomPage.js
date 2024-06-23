@@ -378,24 +378,26 @@ public class SortAfter {
                     .map(([key, _]) => key.replace('isPattern', 'Pattern'));
                 setPatterns(filteredPatterns);
 
-                // 나중에 수정
+                /* for test
                 const test1 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
                 const test2 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
+                */
                 const compareResponse = await fetch('/compare', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',  // headers 수정
                     },
+                    /*
                     body: JSON.stringify({
                         "inputCode": test1,
                         "outputCode": test2
                     })
-                    /*
+                        */
+                    
                     body: JSON.stringify({
                         "inputCode": code,
                         "outputCode": data.code
                     })
-*/
                 });
 
                 if (!compareResponse.ok) {
