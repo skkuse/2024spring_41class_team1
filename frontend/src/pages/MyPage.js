@@ -104,13 +104,13 @@ const MyPage = () => {
   }, [navigate, setRole]);
 
   const updateRankImage = (totalBits) => {    //소유중인 bit에 따라 나무 이미지 표시
-    if (totalBits >= 801) { //200 단위로 성장
+    if (totalBits >= 201) { //200 단위로 성장 -> 편의상 50 단위로 수정
       setRankImagePath("/5.jpg");
-    } else if (totalBits >= 601) {
+    } else if (totalBits >= 151) {
       setRankImagePath("/4.jpg");
-    } else if (totalBits >= 401) {
+    } else if (totalBits >= 101) {
       setRankImagePath("/3.jpg");
-    } else if (totalBits >= 201) {
+    } else if (totalBits >= 51) {
       setRankImagePath("/2.jpg");
     } else {
       setRankImagePath("/1.jpg");
