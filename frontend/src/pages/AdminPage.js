@@ -119,7 +119,7 @@ const AdminPage = () => {
               {advertisements.map(advertisement => (
                 <TableRow key={advertisement.key}>
                   <TableCell>{advertisement.message}</TableCell>
-                  <TableCell>{advertisement.userId}</TableCell>
+                  <TableCell>{advertisement.user.username}</TableCell>
                   <TableCell>
                     <Button variant="outlined" onClick={() => handleClickOpen(advertisement.imageUrl)}>
                       미리보기
