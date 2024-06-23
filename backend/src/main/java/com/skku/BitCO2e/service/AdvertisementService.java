@@ -65,7 +65,7 @@ public class AdvertisementService {
 
     public AdvertisementDTO findAdvertisement(String adId) {
         AdvertisementDTO ad = adRepository.findById(adId).join();
-        return convertAdvertisementImageUrl(ad);
+        return ad;
     }
 
     public void reviewAdvertisement(ReviewDTO reviewDTO) {
