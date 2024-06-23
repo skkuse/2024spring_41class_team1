@@ -46,7 +46,7 @@ const MainBottomPage = ({ code }) => {
     const [currentPattern, setCurrentPattern] = useState(null);  // 현재 선택된 패턴
     const [compareData, setCompareData] = useState(null);
 
-    const patternDescriptions = {
+    const patternDescriptions = {   //각 패턴에 대한 설명, before/after 코드
         Pattern1: {
             description: "Strength reduction and binary operators",
             before: "if (number % 2 == 0)",
@@ -378,24 +378,26 @@ public class SortAfter {
                     .map(([key, _]) => key.replace('isPattern', 'Pattern'));
                 setPatterns(filteredPatterns);
 
-                // 나중에 수정
+                /* for test
                 const test1 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
                 const test2 = `public class Code { public static void main(String[] args) { int sum = 0; for (int i = 1; i <= 100000; i++) { sum += i * (i - 1); } try { Thread.sleep(500); } catch (InterruptedException e) { e.printStackTrace(); } System.out.println(sum); } }`;
+                */
                 const compareResponse = await fetch('/compare', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',  // headers 수정
                     },
+                    /*
                     body: JSON.stringify({
                         "inputCode": test1,
                         "outputCode": test2
                     })
-                    /*
-                                        body: JSON.stringify({
-                                            "inputCode": code,
-                                            "outputCode": data.code 
-                                        })
-                    */
+                        */
+                    
+                    body: JSON.stringify({
+                        "inputCode": code,
+                        "outputCode": data.code
+                    })
                 });
 
                 if (!compareResponse.ok) {
@@ -422,7 +424,7 @@ public class SortAfter {
     return (
         <Section style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "1000px", minHeight: "600px", margin: "20px auto" }}>
             <div style={{ flex: 1, minHeight: "600px", backgroundColor: "#E6F7FF", padding: "20px", fontSize: "16px", fontFamily: "Arial, sans-serif", alignItems: "start" }}>
-                <h2 style={{ textAlign: "center", fontWeight: "bold" }}>시스템 정보</h2>
+                <h2 style={{ textAlign: "center", fontWeight: "bold" }}>시스템 정보</h2>    {/* 서버 시스템 정보가 static 하므로 하드코딩 */}
                 <p style={{ fontWeight: "bold" }}>CPU</p>
                 <ul>
                     <li>Intel Core i7-10700K</li>

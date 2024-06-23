@@ -99,7 +99,7 @@ const MainTopPage = ({setCode}) => {
         if (session_data.authorities[0].authority === 'ROLE_ADMIN') { //ADMIN 권한 확인 후 HEADER 형태 수정
           setRole('ROLE_ADMIN');
         }
-        else if (session_data.authorities[0].authority === 'ROLE_USER') {
+        else if (session_data.authorities[0].authority === 'ROLE_USER') { //사용자 권한인 경우 HEADER 형태 수정
           setRole('ROLE_USER');
         }
       }
@@ -112,7 +112,7 @@ const MainTopPage = ({setCode}) => {
     }
   };
 
-  const SetEditor = (files) => {
+  const SetEditor = (files) => {  // 파일 업로드
     if (files.length !== 1) {
       alert("파일은 한 번에 하나씩 업로드해야 합니다.");
       return -1;
@@ -158,10 +158,10 @@ const MainTopPage = ({setCode}) => {
   };
 
   const Convert = async () => {
-    const codeContent = inputRef.current.editor.getValue();
+    const codeContent = inputRef.current.editor.getValue();   //code editor로부터 code 받아오기
     setCode(codeContent);
     try {
-      const response = await fetch("/refactoring", {
+      const response = await fetch("/refactoring", {    // /refcatoring에 코드 포함한 POST request 전송
         method: "POST",
         headers: {
           "Content-Type": "text/plain",
@@ -237,15 +237,16 @@ const MainTopPage = ({setCode}) => {
   useEffect(() => {   //광고 받아오기
     const fetchAds = async () => {
       try {
-        const response = await fetch("/advertisements?status=approved", {
+        const response = await fetch("/advertisements?status=approved", { //승인된 광고 리스트 받아오기
           method: "GET",
         });
         if (!response.ok) throw new Error("Network response was not ok");
-        const img_data = await response.json();
+        const img_data = await response.json(); //광고 리스트 데이터 파싱
         const urls = img_data.filter((i) => !AdUrls.includes(i.imageUrl)).map(i => i.imageUrl);
         setAdUrls(urls);
         //console.log(urls);
 
+        //좌우 광고 배너에 광고 표시
         AdRef[0].current.initialize(urls, 0);
         AdRef[1].current.initialize(urls, parseInt(urls.length / 2));
       } catch (error) {

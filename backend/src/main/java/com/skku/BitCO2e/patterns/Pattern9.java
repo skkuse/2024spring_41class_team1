@@ -17,7 +17,7 @@ public class Pattern9 {
             for (int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i).trim();
 
-                // detect large array
+                // large array
                 Pattern arrayPattern = Pattern.compile("int\\[\\]\\s*(\\w+)\\s*=\\s*\\{([^}]+)\\};");
                 Matcher arrayMatcher = arrayPattern.matcher(line);
 
@@ -25,7 +25,7 @@ public class Pattern9 {
                     String arrayName = arrayMatcher.group(1);
                     String[] elements = arrayMatcher.group(2).split("\\s*,\\s*");
 
-                    // Check if the array is "large"
+                    // 배열 크기가 큰지 체크
                     if (elements.length > 5) {
                         int sumLineIndex = findSumLineIndex(lines, arrayName, i + 1);
                         if (sumLineIndex != -1) {

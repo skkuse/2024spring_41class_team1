@@ -100,8 +100,9 @@ public class Controller {
         String refactor4 = pattern4.main(refactor3);
         boolean isPattern4 = !refactor3.equals(refactor4);
 
-        String refactor5 = pattern5.main(refactor4);
-        boolean isPattern5 = !refactor4.equals(refactor5);
+        boolean containsTempReturnPattern = refactor4.matches(".*int temp = .+;\\s*return temp;.*");
+        String refactor5 = containsTempReturnPattern ? pattern5.main(refactor4) : refactor4;
+        boolean isPattern5 = containsTempReturnPattern && !refactor4.equals(refactor5);
 
         String refactor6 = pattern6.main(refactor5);
         boolean isPattern6 = !refactor5.equals(refactor6);

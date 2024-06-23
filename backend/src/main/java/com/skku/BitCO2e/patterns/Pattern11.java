@@ -15,7 +15,7 @@ public class Pattern11 {
             String[] codes = inputText.split("\n");
             ArrayList<String> lines = new ArrayList<>(Arrays.asList(codes));
 
-            // Find Comparator
+            // Comparator 검출
             Pattern comparatorPattern = Pattern.compile("Collections\\.sort\\((.*?),\\s*new\\s*Comparator<.*?>\\(\\)\\s*\\{");
             Matcher comparatorMatcher = comparatorPattern.matcher(inputText);
             if (comparatorMatcher.find()) {
@@ -45,7 +45,7 @@ public class Pattern11 {
                 //test
                 System.out.println("comparator"+comparatorLogic);
 
-                // Replace with Stream.sorted
+                // Stream.sorted 로 수정
                 String lambdaFunction = createLambdaFunction(comparatorLogic.toString());
 
                 lines.set(sortStartIndex, listName + " = " + listName + ".stream().sorted(" + lambdaFunction + ").collect(Collectors.toList());");
@@ -53,7 +53,7 @@ public class Pattern11 {
 
             }
 
-            // Add import for Collectors
+            // import 추가
             if (isDetected) {
                 addCollectorsImportIfNeeded(lines);
                 replaceClassNameIfNeeded(lines, "Buggy", "Fixed");
@@ -78,6 +78,7 @@ public class Pattern11 {
         return -1;
     }
 
+    //생성자 끝 검출
     private int findEndOfComparator(ArrayList<String> lines, int startIndex) {
         int braceCount = 0;
         for (int i = startIndex; i < lines.size(); i++) {
@@ -105,6 +106,7 @@ public class Pattern11 {
                 .trim();
     }
 
+    //import 추가
     private void addCollectorsImportIfNeeded(ArrayList<String> lines) {
         boolean hasCollectorsImport = lines.stream().anyMatch(line -> line.contains("import java.util.stream.Collectors;"));
         if (!hasCollectorsImport) {
@@ -117,6 +119,7 @@ public class Pattern11 {
         }
     }
 
+    //클래스명 수정
     private void replaceClassNameIfNeeded(ArrayList<String> lines, String oldName, String newName) {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
