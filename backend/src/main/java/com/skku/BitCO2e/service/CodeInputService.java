@@ -39,11 +39,6 @@ public class CodeInputService {
     private double calculateCarbonEmissions(String code) throws Exception {
         String codeInfo = CodeInfo(code);
 
-        if (codeInfo == null) {
-            System.out.println("Compilation failed.");
-            return -1;
-        }
-
         // 소스 코드를 파일로 저장
         File sourceFile = new File("Code.java");
         try (PrintWriter writer = new PrintWriter(sourceFile)) {
@@ -57,14 +52,6 @@ public class CodeInputService {
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
         boolean success = task.call();
-
-        if (!success) {
-            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                System.out.format("Error on line %d%n", diagnostic.getLineNumber());
-            }
-            System.out.println("Compilation failed.");
-            return -1;
-        }
 
         // 실행
         Process process = Runtime.getRuntime().exec("java Code");
