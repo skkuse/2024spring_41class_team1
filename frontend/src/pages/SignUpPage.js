@@ -33,12 +33,12 @@ const SignUpPage =  () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSignUp = async () => {
-    if (!name || !id || !pw || !confirmPassword) {
+  const handleSignUp = async () => {  //회원가입 버튼 클릭시
+    if (!name || !id || !pw || !confirmPassword) {    //비어있는 필드 존재하는 경우
       alert('모든 필드를 입력해주세요.');
-    } else if (pw !== confirmPassword) {
+    } else if (pw !== confirmPassword) {  //pw와 pw확인의 value가 일치하지 않는 경우
       alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-    } else {
+    } else {  //정상 flow
       // 서버로 POST 요청 보내기
       const formData = new FormData();
       formData.append('username', name);
@@ -47,7 +47,7 @@ const SignUpPage =  () => {
       
 
       try{
-        const response = await fetch("/signup", {
+        const response = await fetch("/signup", { // signup에 사용자가 입력한 데이터를 포함하여 request
           method: "POST",
           mode: "no-cors",
           body: formData,
