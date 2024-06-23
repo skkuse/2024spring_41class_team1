@@ -158,10 +158,10 @@ const MainTopPage = ({setCode}) => {
   };
 
   const Convert = async () => {
-    const codeContent = inputRef.current.editor.getValue();
+    const codeContent = inputRef.current.editor.getValue();   //code editor로부터 code 받아오기
     setCode(codeContent);
     try {
-      const response = await fetch("/refactoring", {
+      const response = await fetch("/refactoring", {    // /refcatoring에 코드 포함한 POST request 전송
         method: "POST",
         headers: {
           "Content-Type": "text/plain",
